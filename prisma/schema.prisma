@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]      @relation("UserPosts")
+  likes         Like[]
+  comments      Comment[]
+  notifications Notification[] @relation("UserNotifications")
+  sentNotifications Notification[] @relation("NotificationSender")
+  createdAt     DateTime  @default(now())
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  user               User    @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String?
+  content     String?
+  author      User      @relation("UserPosts", fields: [authorId], references: [id])
+  authorId    String
+
+  // 如果是轉發，指向原始 Post
+  repostOf    Post?     @relation("RepostRelation", fields: [repostOfId], references: [id])
+  repostOfId  String?
+
+  // 被轉發的關係
+  reposts     Post[]    @relation("RepostRelation")
+
+  likes       Like[]
+  likeCount   Int       @default(0) 
+  comments    Comment[]
+  notifications Notification[]
+
+  createdAt   DateTime  @default(now())
+}
+
+
+model Like {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  notifications Notification[]
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // "like", "comment", "repost"
+  content   String   // 通知内容
+  read      Boolean  @default(false)
+  
+  // 接收通知的用户
+  user      User     @relation("UserNotifications", fields: [userId], references: [id])
+  userId    String
+  
+  // 发送通知的用户
+  sender    User     @relation("NotificationSender", fields: [senderId], references: [id])
+  senderId  String
+  
+  // 相关的帖子
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  
+  // 相关的评论（如果是评论通知）
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  commentId String?
+  
+  createdAt DateTime @default(now())
+}
