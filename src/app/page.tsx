@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { useSimplePosts } from "@/hooks/useSimpleSWR";
 import { useSWRSearch } from "@/hooks/useSWRSearch";
 import { usePostModal } from "@/hooks/usePostModal";
-import { useState } from "react";
+import { useRealtimePosts } from "@/hooks/useRealtimePosts";
+import { useState, useEffect } from "react";
 
 import PostCard from "@/components/PostCard";
 import PostModal from "@/components/PostModal";
@@ -25,8 +26,10 @@ export default function Home() {
 
   // 狀態管理
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [commentValues, setCommentValues] = useState<Record<string, string>>({});
   const [commentLoading, setCommentLoading] = useState<Record<string, boolean>>({});
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [repostedPosts, setRepostedPosts] = useState<string[]>([]);
   
   const { 
@@ -40,15 +43,133 @@ export default function Home() {
   
   const { selectedPostId, openPostModal, closePostModal } = usePostModal();
 
+  // 初始化點讚和轉發狀態
+  useEffect(() => {
+    if (feed && session?.user?.id && feed.length > 0) {
+      const currentUserId = session.user.id;
+      const initialLikedPosts: string[] = [];
+      const initialRepostedPosts: string[] = [];
+      const initialLikeCounts: Record<string, number> = {};
+      const initialCommentCounts: Record<string, number> = {};
+
+      feed.forEach((item: any) => {
+        const post = item.post;
+        
+        // 檢查主帖子的點讚狀態
+        if (post.likes?.some((like: any) => like.userId === currentUserId)) {
+          initialLikedPosts.push(post.id);
+        }
+        initialLikeCounts[post.id] = post.likeCount || 0;
+        initialCommentCounts[post.id] = post.comments?.length || 0;
+
+        // 檢查轉發狀態
+        if (post.reposts?.some((repost: any) => repost.authorId === currentUserId)) {
+          initialRepostedPosts.push(post.id);
+        }
+
+        // 檢查轉發帖子的狀態
+        if (post.repostOf) {
+          if (post.repostOf.likes?.some((like: any) => like.userId === currentUserId)) {
+            initialLikedPosts.push(post.repostOf.id);
+          }
+          initialLikeCounts[post.repostOf.id] = post.repostOf.likeCount || 0;
+          initialCommentCounts[post.repostOf.id] = post.repostOf.comments?.length || 0;
+        }
+      });
+
+      // 只在狀態真正改變時才更新
+      setLikedPosts(prev => {
+        const newSet = new Set(initialLikedPosts);
+        const prevSet = new Set(prev);
+        if (newSet.size !== prevSet.size || !initialLikedPosts.every(id => prevSet.has(id))) {
+          return initialLikedPosts;
+        }
+        return prev;
+      });
+
+      setRepostedPosts(prev => {
+        const newSet = new Set(initialRepostedPosts);
+        const prevSet = new Set(prev);
+        if (newSet.size !== prevSet.size || !initialRepostedPosts.every(id => prevSet.has(id))) {
+          return initialRepostedPosts;
+        }
+        return prev;
+      });
+
+      setLikeCounts(prev => {
+        const hasChanged = Object.keys(initialLikeCounts).some(
+          key => prev[key] !== initialLikeCounts[key]
+        );
+        return hasChanged ? initialLikeCounts : prev;
+      });
+
+      setCommentCounts(prev => {
+        const hasChanged = Object.keys(initialCommentCounts).some(
+          key => prev[key] !== initialCommentCounts[key]
+        );
+        return hasChanged ? initialCommentCounts : prev;
+      });
+    }
+  }, [feed?.length, session?.user?.id]); // 只依賴於 feed 的長度和用戶 ID
+
+  // 获取所有帖子的ID用于实时订阅
+  const postIds = feed?.map((item: any) => {
+    const ids = [item.post.id];
+    if (item.post.repostOf) {
+      ids.push(item.post.repostOf.id);
+    }
+    return ids;
+  }).flat() || [];
+
+  // 实时更新处理函数
+  const handleRealtimeUpdate = (data: any) => {
+    const { postId, likeCount, commentCount, repostCount, liked, userId } = data;
+    
+    // 如果是当前用户的操作，跳过（避免重复更新）
+    if (userId === session?.user?.id) return;
+
+    // 更新点赞数
+    setLikeCounts(prev => ({
+      ...prev,
+      [postId]: likeCount
+    }));
+
+    // 更新评论数
+    setCommentCounts(prev => ({
+      ...prev,
+      [postId]: commentCount
+    }));
+
+    // 如果有新的点赞状态，更新点赞列表
+    if (liked !== undefined) {
+      setLikedPosts(prev => {
+        if (liked && !prev.includes(postId)) {
+          return [...prev, postId];
+        } else if (!liked && prev.includes(postId)) {
+          return prev.filter(id => id !== postId);
+        }
+        return prev;
+      });
+    }
+  };
+
+  // 订阅实时更新
+  useRealtimePosts(postIds, handleRealtimeUpdate);
+
   // 處理點讚
   const handleLike = async (postId: string) => {
     const isLiked = likedPosts.includes(postId);
+    const currentCount = likeCounts[postId] || 0;
     const newLikedPosts = isLiked 
       ? likedPosts.filter(id => id !== postId)
       : [...likedPosts, postId];
     
-    // 樂觀更新 UI
+    // 樂觀更新 UI - 點讚狀態和數字
     setLikedPosts(newLikedPosts);
+    setLikeCounts(prev => ({
+      ...prev,
+      [postId]: isLiked ? currentCount - 1 : currentCount + 1
+    }));
     
     try {
       await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
@@ -57,6 +178,10 @@ export default function Home() {
     } catch (error) {
       // 如果失敗，回滾 UI 狀態
       setLikedPosts(likedPosts);
+      setLikeCounts(prev => ({
+        ...prev,
+        [postId]: currentCount
+      }));
       console.error('Like failed:', error);
     }
   };
@@ -66,7 +191,14 @@ export default function Home() {
     const content = commentValues[postId];
     if (!content?.trim()) return;
 
+    const currentCount = commentCounts[postId] || 0;
+    
+    // 樂觀更新 - 立即增加評論數
+    setCommentCounts(prev => ({ ...prev, [postId]: currentCount + 1 }));
     setCommentLoading(prev => ({ ...prev, [postId]: true }));
+    
+    // 清空評論輸入
+    setCommentValues(prev => ({ ...prev, [postId]: '' }));
     
     try {
       await fetch(`/api/posts/${postId}/comment`, {
@@ -75,11 +207,11 @@ export default function Home() {
         body: JSON.stringify({ content }),
       });
       
-      // 清空評論輸入
-      setCommentValues(prev => ({ ...prev, [postId]: '' }));
-      // 重新獲取數據
+      // 重新獲取數據以同步服務器狀態
       refetch();
     } catch (error) {
+      // 如果失敗，回滾評論數
+      setCommentCounts(prev => ({ ...prev, [postId]: currentCount }));
       console.error('Comment failed:', error);
     } finally {
       setCommentLoading(prev => ({ ...prev, [postId]: false }));
@@ -157,6 +289,8 @@ export default function Home() {
               <PostCard
                 item={item}
                 likedPosts={likedPosts}
+                likeCounts={likeCounts}
+                commentCounts={commentCounts}
                 onOpenModal={openPostModal}
                 onLike={handleLike}
                 onRepost={handleRepost}
@@ -176,6 +310,7 @@ export default function Home() {
         <PostModal
           modalPost={modalPost}
           likedPosts={likedPosts}
+          likeCounts={likeCounts}
           onClose={closePostModal}
           onLike={handleLike}
           onRepost={handleRepost}

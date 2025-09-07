@@ -28,7 +28,7 @@ export default function PostActions({
     <div className="flex gap-6 mt-3" onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => onLike(targetId)}
-        className="flex items-center gap-1"
+        className="flex items-center gap-1 hover:text-gray-400"
       >
         <img
           src={liked ? "/icons/heart-fill.svg" : "/icons/heart.svg"}
@@ -40,7 +40,7 @@ export default function PostActions({
 
       <button
         onClick={() => onOpenComments(targetId)}
-        className="flex items-center gap-1"
+        className="flex items-center gap-1 hover:text-gray-400"
       >
         <img src="/icons/chat.svg" alt="comment" className="w-5 h-5" />
         <span className="text-sm">{commentsCount ?? 0}</span>
@@ -49,10 +49,15 @@ export default function PostActions({
       {showRepost && onRepost && (
         <button
           onClick={() => onRepost(targetId)}
-          className="flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
           disabled={repostDisabled}
+          title={repostDisabled ? "Already reposted" : "Repost"}
         >
-          <img src="/icons/repost.svg" alt="repost" className="w-5 h-5" />
+          <img 
+            src="/icons/repost.svg" 
+            alt="repost" 
+            className={`w-5 h-5 ${repostDisabled ? "filter brightness-0 saturate-100 invert sepia-100 saturate-1000 hue-rotate-90" : ""}`}
+          />
           <span className="text-sm">{repostCount ?? 0}</span>
         </button>
       )}

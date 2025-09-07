@@ -1,32 +1,53 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    const currentUserId = session?.user?.id;
+
     const posts = await prisma.post.findMany({
       include: {
         author: true,
-        likes: true,
+        likes: {
+          include: {
+            user: true,
+          },
+        },
         comments: {
           orderBy: { createdAt: "asc" },
           include: {
             author: { select: { id: true, name: true, image: true } },
           },
         },
-        reposts: true,
+        reposts: {
+          include: {
+            author: true,
+          },
+        },
         repostOf: {
           include: {
             author: true,
-            likes: true,
+            likes: {
+              include: {
+                user: true,
+              },
+            },
             comments: {
               orderBy: { createdAt: "asc" },
               include: {
                 author: { select: { id: true, name: true, image: true } },
               },
             },
-            reposts: true,
+            reposts: {
+              include: {
+                author: true,
+              },
+            },
           },
         },
       },
@@ -38,10 +59,12 @@ export async function GET() {
       createdAt: post.createdAt,
       post: {
         ...post,
+        likeCount: post.likes.length,
         repostCount: post.reposts.length,
         repostOf: post.repostOf
           ? {
               ...post.repostOf,
+              likeCount: post.repostOf.likes.length,
               repostCount: post.repostOf.reposts.length,
             }
           : null,

@@ -2,7 +2,38 @@
 import { useEffect, useRef } from "react";
 import { pusherClient, getNotificationChannel } from "@/lib/pusher";
 import { useSWRNotifications } from "./useSWRNotifications";
-import { Notification } from "./useNotifications";
+// 通知類型定義
+interface Notification {
+  id: string;
+  type: string;
+  content: string;
+  read: boolean;
+  createdAt: string;
+  sender: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+  post: {
+    id: string;
+    content: string | null;
+    title: string | null;
+    author: {
+      id: string;
+      name: string | null;
+      image: string | null;
+    };
+  };
+  comment?: {
+    id: string;
+    content: string;
+    author: {
+      id: string;
+      name: string | null;
+      image: string | null;
+    };
+  };
+}
 
 export function useRealtimeNotifications(session: any) {
   const { 

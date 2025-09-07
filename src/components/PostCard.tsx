@@ -6,6 +6,8 @@ import CommentInput from "@/components/CommentInput";
 export default function PostCard({
   item,
   likedPosts,
+  likeCounts,
+  commentCounts,
   onOpenModal,
   onLike,
   onRepost,
@@ -18,6 +20,8 @@ export default function PostCard({
 }: {
   item: FeedItem;
   likedPosts: string[];
+  likeCounts: Record<string, number>;
+  commentCounts: Record<string, number>;
   onOpenModal: (postId: string) => void;
   onLike: (postId: string) => void;
   onRepost: (postId: string) => void;
@@ -46,7 +50,7 @@ export default function PostCard({
         <div className="flex flex-col gap-2 w-full">
           {post.repostOf && (
             <p className="flex flex-row gap-1 text-xs text-[#90abcb]">
-              {post.repostOf.author?.name ?? "Someone"} reposted
+              {post.author?.name ?? "Someone"} reposted
               <img src="/icons/repost.svg" alt="repost" className="w-3 h-3" />
             </p>
           )}
@@ -74,7 +78,7 @@ export default function PostCard({
               <div>
                 <p className="font-medium">{post.repostOf.title}</p>
                 <p className="mt-2 text-[#90abcb] text-sm">
-                  {post.author?.name ?? "Unknown"}
+                  {post.repostOf.author?.name ?? "Unknown"}
                 </p>
                 <p className="mt-2 text-sm max-w-2xl break-words whitespace-pre-wrap">
                   {post.repostOf.content}
@@ -85,8 +89,8 @@ export default function PostCard({
 
                 <PostActions
                   targetId={post.repostOf.id}
-                  likeCount={post.repostOf.likeCount}
-                  commentsCount={post.repostOf.comments.length}
+                  likeCount={likeCounts[post.repostOf.id] ?? post.repostOf.likeCount}
+                  commentsCount={commentCounts[post.repostOf.id] ?? post.repostOf.comments.length}
                   repostCount={post.repostOf?.repostCount ?? post.repostCount}
                   liked={likedPosts.includes(post.repostOf.id)}
                   onLike={onLike}
@@ -101,8 +105,8 @@ export default function PostCard({
 
           <PostActions
             targetId={post.id}
-            likeCount={post.likeCount}
-            commentsCount={post.comments.length}
+            likeCount={likeCounts[post.id] ?? post.likeCount}
+            commentsCount={commentCounts[post.id] ?? post.comments.length}
             repostCount={post.repostOf?.repostCount ?? post.repostCount}
             liked={likedMain}
             onLike={onLike}
@@ -119,6 +123,7 @@ export default function PostCard({
               onChange={(v) => setCommentValue(post.id, v)}
               onSubmit={() => onSubmitComment(post.id)}
               disabled={commentLoading(post.id)}
+              onFocus={() => onOpenComments(post.id)}
             />
           </div>
         </div>

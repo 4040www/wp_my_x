@@ -6,6 +6,7 @@ import CommentInput from "@/components/CommentInput";
 export default function PostModal({
   modalPost,
   likedPosts,
+  likeCounts,
   onClose,
   onLike,
   onRepost,
@@ -17,6 +18,7 @@ export default function PostModal({
 }: {
   modalPost: Post;
   likedPosts: string[];
+  likeCounts: Record<string, number>;
   onClose: () => void;
   onLike: (postId: string) => void;
   onRepost?: (postId: string) => void;
@@ -36,8 +38,8 @@ export default function PostModal({
           ✕
         </button>
 
-        <h3 className="text-lg font-bold mb-2">{basePost.author?.name}</h3>
-        <p className="text-[#90abcb] text-sm">{basePost.title}</p>
+        <h3 className="text-lg font-bold mb-2">{basePost.title}</h3>
+        <p className="text-[#90abcb] text-sm">{basePost.author?.name}</p>
         <p className="text-sm mb-4 max-w-2xl break-words whitespace-pre-wrap">
           {basePost.content}
         </p>
@@ -67,7 +69,7 @@ export default function PostModal({
               alt="like"
               className="w-5 h-5"
             />
-            <span className="text-sm">{modalPost.likeCount}</span>
+            <span className="text-sm">{likeCounts[modalPost.id] ?? modalPost.likeCount}</span>
           </button>
 
           <button
@@ -100,6 +102,8 @@ export default function PostModal({
             onChange={(v) => setCommentValue(modalPost.id, v)}
             onSubmit={() => onSubmitComment(modalPost.id)}
             disabled={commentLoading(modalPost.id)}
+            autoFocus={true}
+            showSubmitButton={true}
           />
         </div>
       </div>

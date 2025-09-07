@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { createNotification } from "@/lib/notifications";
+import { pusherServer, getPostChannel } from "@/lib/pusher";
 
 const prisma = new PrismaClient();
 
@@ -73,6 +74,30 @@ export async function POST(
       senderId: userId,
       postId: originalPostId,
     });
+
+    // 获取更新后的帖子信息
+    const updatedPost = await prisma.post.findUnique({
+      where: { id: originalPostId },
+      include: { comments: true, likes: true, reposts: true },
+    });
+
+    // 发送实时更新到所有订阅该帖子的用户
+    try {
+      await pusherServer.trigger(
+        getPostChannel(originalPostId),
+        'post-updated',
+        {
+          postId: originalPostId,
+          likeCount: updatedPost?.likeCount ?? 0,
+          commentCount: updatedPost?.comments?.length ?? 0,
+          repostCount: updatedPost?.reposts?.length ?? 0,
+          newRepost: repost,
+          userId
+        }
+      );
+    } catch (error) {
+      console.error('Failed to send realtime update:', error);
+    }
 
     return NextResponse.json({
       type: "repost" as const,

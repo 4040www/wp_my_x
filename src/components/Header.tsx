@@ -6,6 +6,7 @@ import { Popover } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState } from "react";
 import { useSimpleNotifications } from "@/hooks/useSimpleSWR";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -16,7 +17,7 @@ interface HeaderProps {
 export default function Header({ onSearch, searchQuery = "", onNotificationClick }: HeaderProps) {
   const { data: session } = useSession();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-  const { notifications, unreadCount, refetch } = useSimpleNotifications(session);
+  const { notifications, unreadCount } = useRealtimeNotifications(session);
   
   // 標記所有通知為已讀
   const markAllAsRead = () => {
@@ -28,7 +29,7 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notificationIds: unreadIds }),
-      }).then(() => refetch());
+      });
     }
   };
 
@@ -53,6 +54,36 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
 
       {/* Right side */}
       <div className="flex flex-1 justify-end gap-6 items-center text-sm font-medium text-white">
+
+        {/* Search */}
+        <div className="flex items-center bg-[#223449] rounded-lg px-3 py-2 gap-2 w-56 focus-within:ring-2 focus-within:ring-[#4ea1f3] transition">
+          <Image src="/icons/search.svg" width={20} height={20} alt="search" />
+          <input
+            type="text"
+            placeholder="Search posts or authors..."
+            value={localSearchQuery}
+            onChange={(e) => setLocalSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && onSearch) {
+                onSearch(localSearchQuery);
+              }
+            }}
+            className="bg-transparent outline-none placeholder:text-[#90abcb] text-white w-full"
+          />
+          {localSearchQuery && (
+            <button
+              onClick={() => {
+                setLocalSearchQuery("");
+                if (onSearch) onSearch("");
+              }}
+              className="text-[#90abcb] hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        
         {/* Notifications */}
         <Popover className="relative">
           <Popover.Button className="px-3 py-2 rounded-lg hover:bg-[#2a3b52] transition relative">
@@ -93,7 +124,7 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
                           method: 'PATCH',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ notificationIds: [notification.id] }),
-                        }).then(() => refetch());
+                        });
                       }
                       if (onNotificationClick) {
                         onNotificationClick(notification.post.id);
@@ -124,61 +155,7 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
             )}
           </Popover.Panel>
         </Popover>
-
-        {/* Messages */}
-        {/* <Popover className="relative">
-          <Popover.Button className="px-3 py-2 rounded-lg hover:bg-[#2a3b52] transition">
-            💬 Messages
-          </Popover.Button>
-          <Popover.Panel className="absolute right-0 mt-2 w-72 rounded-xl bg-[#223449] p-4 shadow-lg text-white">
-            <p className="font-semibold mb-3 text-lg">Messages</p>
-            <ul className="space-y-2 text-sm">
-              <li className="hover:bg-[#2a3b52] p-2 rounded-md cursor-pointer">
-                🦊 Fox: "Hey, how are you?"
-              </li>
-              <li className="hover:bg-[#2a3b52] p-2 rounded-md cursor-pointer">
-                🐼 Panda: "Want to meet tomorrow?"
-              </li>
-              <li className="hover:bg-[#2a3b52] p-2 rounded-md cursor-pointer">
-                🐱 Cat: "Check this out!"
-              </li>
-            </ul>
-          </Popover.Panel>
-        </Popover> */}
-
-        {/* Search */}
-        <div className="flex items-center bg-[#223449] rounded-lg px-3 py-2 gap-2 w-56 focus-within:ring-2 focus-within:ring-[#4ea1f3] transition">
-          <Image src="/icons/search.svg" width={20} height={20} alt="search" />
-          <input
-            type="text"
-            placeholder="Search posts or authors..."
-            value={localSearchQuery}
-            onChange={(e) => setLocalSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && onSearch) {
-                onSearch(localSearchQuery);
-              }
-            }}
-            className="bg-transparent outline-none placeholder:text-[#90abcb] text-white w-full"
-          />
-          {localSearchQuery && (
-            <button
-              onClick={() => {
-                setLocalSearchQuery("");
-                if (onSearch) onSearch("");
-              }}
-              className="text-[#90abcb] hover:text-white transition-colors"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-
-        {/* Gear */}
-        <button className="bg-[#223449] p-2 rounded-lg hover:bg-[#2a3b52] transition">
-          <Image src="/icons/gear.svg" width={20} height={20} alt="gear" />
-        </button>
-
+        
         {/* Avatar / Profile menu */}
         <Popover className="relative">
           <Popover.Button className="rounded-full w-11 h-11 overflow-hidden border-2 border-transparent hover:border-[#4ea1f3] transition">
@@ -234,9 +211,6 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
                   className="bg-[#444] hover:bg-[#555] rounded px-3 py-2 text-sm transition"
                 >
                   Sign in with GitHub
-                </button>
-                <button className="bg-green-600 hover:bg-green-700 rounded px-3 py-2 text-sm transition">
-                  Register
                 </button>
               </div>
             )}
