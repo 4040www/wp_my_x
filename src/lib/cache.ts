@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 // 本地存儲快取工具
 export class LocalCache {
   private static PREFIX = "my-x-cache-";
-  private static DEFAULT_TTL = 5 * 60 * 1000; // 5分鐘
+  public static DEFAULT_TTL = 5 * 60 * 1000; // 5分鐘
 
   // 設置快取
   static set(key: string, data: any, ttl: number = this.DEFAULT_TTL) {

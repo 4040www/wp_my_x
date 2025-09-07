@@ -1,16 +1,21 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+// eslint.config.js (ESM)
+import js from "@eslint/js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export default [
+  // 1) JS 基本建議
+  js.configs.recommended,
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+  // 2) 基本配置
+  {
+    files: ["**/*.{ts,tsx,js,jsx}"],
+    rules: {
+      // 基本規則
+      "no-unused-vars": "warn",
+      "no-console": "warn",
+    },
+  },
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // 3) 忽略清單
   {
     ignores: [
       "node_modules/**",
@@ -21,5 +26,3 @@ const eslintConfig = [
     ],
   },
 ];
-
-export default eslintConfig;

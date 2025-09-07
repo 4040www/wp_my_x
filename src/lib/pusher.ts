@@ -20,17 +20,21 @@ export const pusherClient = (() => {
     return null;
   }
 
-  return new PusherClient(key, {
+  const client = new PusherClient(key, {
     cluster,
-    // 添加錯誤處理
-    onError: (error) => {
-      console.warn("Pusher connection error:", error);
-    },
-    // 添加連接狀態處理
-    onConnectionStateChange: (state) => {
-      console.log("Pusher connection state:", state);
-    },
   });
+
+  // 添加錯誤處理
+  client.connection.bind('error', (error: any) => {
+    console.warn("Pusher connection error:", error);
+  });
+
+  // 添加連接狀態處理
+  client.connection.bind('state_change', (states: any) => {
+    console.log("Pusher connection state:", states);
+  });
+
+  return client;
 })();
 
 // 通知頻道名稱生成

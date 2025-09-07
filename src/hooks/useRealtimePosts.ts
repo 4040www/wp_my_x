@@ -33,7 +33,7 @@ export function useRealtimePosts(
 
     // 订阅所有帖子的更新频道
     postIds.forEach((postId) => {
-      if (!channelsRef.current.has(postId)) {
+      if (!channelsRef.current.has(postId) && pusherClient) {
         const channel = pusherClient.subscribe(getPostChannel(postId));
         channelsRef.current.set(postId, channel);
 
