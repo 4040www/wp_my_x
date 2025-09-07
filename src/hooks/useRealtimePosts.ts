@@ -47,9 +47,11 @@ export function useRealtimePosts(
     // 清理函数
     return () => {
       const currentChannels = channelsRef.current;
-      currentChannels.forEach((channel, postId) => {
-        pusherClient?.unsubscribe(getPostChannel(postId));
-      });
+      if (pusherClient) {
+        currentChannels.forEach((channel, postId) => {
+          pusherClient?.unsubscribe(getPostChannel(postId));
+        });
+      }
       currentChannels.clear();
     };
   }, [postIds, onPostUpdate]);
