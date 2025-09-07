@@ -84,13 +84,18 @@ export default function PostCard({
                   {post.repostOf.content}
                 </p>
                 <p className="text-[#90abcb] text-xs mt-1">
-                  {new Date(post.repostOf.createdAt as any).toLocaleString()}
+                  {new Date(post.repostOf.createdAt as string).toLocaleString()}
                 </p>
 
                 <PostActions
                   targetId={post.repostOf.id}
-                  likeCount={likeCounts[post.repostOf.id] ?? post.repostOf.likeCount}
-                  commentsCount={commentCounts[post.repostOf.id] ?? post.repostOf.comments.length}
+                  likeCount={
+                    likeCounts[post.repostOf.id] ?? post.repostOf.likeCount
+                  }
+                  commentsCount={
+                    commentCounts[post.repostOf.id] ??
+                    post.repostOf.comments.length
+                  }
                   repostCount={post.repostOf?.repostCount ?? post.repostCount}
                   liked={likedPosts.includes(post.repostOf.id)}
                   onLike={onLike}

@@ -17,20 +17,20 @@ export async function GET() {
       where: { userId: session.user.id },
       include: {
         sender: { select: { id: true, name: true, image: true } },
-        post: { 
-          select: { 
-            id: true, 
-            content: true, 
-            title: true,
-            author: { select: { id: true, name: true, image: true } }
-          } 
-        },
-        comment: { 
-          select: { 
-            id: true, 
+        post: {
+          select: {
+            id: true,
             content: true,
-            author: { select: { id: true, name: true, image: true } }
-          } 
+            title: true,
+            author: { select: { id: true, name: true, image: true } },
+          },
+        },
+        comment: {
+          select: {
+            id: true,
+            content: true,
+            author: { select: { id: true, name: true, image: true } },
+          },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -54,7 +54,10 @@ export async function PATCH(req: Request) {
     const { notificationIds } = await req.json();
 
     if (!notificationIds || !Array.isArray(notificationIds)) {
-      return NextResponse.json({ error: "Invalid notification IDs" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid notification IDs" },
+        { status: 400 },
+      );
     }
 
     await prisma.notification.updateMany({
@@ -71,7 +74,3 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-
-
-
-

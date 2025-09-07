@@ -2,7 +2,7 @@
 import React from "react";
 
 export default function CommentInput({
-  postId,
+  // postId,
   value,
   onChange,
   onSubmit,

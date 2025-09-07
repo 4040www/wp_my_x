@@ -9,7 +9,10 @@ export async function GET(req: Request) {
     const query = searchParams.get("q");
 
     if (!query || query.trim() === "") {
-      return NextResponse.json({ error: "Query parameter is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Query parameter is required" },
+        { status: 400 },
+      );
     }
 
     const searchTerm = query.trim();
@@ -114,7 +117,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-
-
-
-

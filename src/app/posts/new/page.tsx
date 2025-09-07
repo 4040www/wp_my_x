@@ -33,7 +33,7 @@ export default function NewPostPage() {
       });
 
       if (res.ok) {
-        const post = await res.json();
+        // const post = await res.json();
         router.push("/");
       } else {
         console.error(await res.json());

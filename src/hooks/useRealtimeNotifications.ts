@@ -35,11 +35,11 @@ interface Notification {
   };
 }
 
-export function useRealtimeNotifications(session: any) {
-  const { 
-    notifications, 
-    unreadCount, 
-    refetch: refetchNotifications 
+export function useRealtimeNotifications(session: { user?: { id: string } } | null) {
+  const {
+    notifications,
+    unreadCount,
+    refetch: refetchNotifications,
   } = useSWRNotifications(session);
   const channelRef = useRef<any>(null);
 
@@ -48,28 +48,35 @@ export function useRealtimeNotifications(session: any) {
 
     // 檢查 Pusher 是否正確配置
     if (!pusherClient) {
-      console.warn('Pusher not properly configured, skipping realtime notifications');
+      console.warn(
+        "Pusher not properly configured, skipping realtime notifications",
+      );
       return;
     }
 
     // 訂閱用戶通知頻道
-    const channel = pusherClient.subscribe(getNotificationChannel(session.user.id));
+    const channel = pusherClient.subscribe(
+      getNotificationChannel(session.user.id),
+    );
     channelRef.current = channel;
 
     // 監聽新通知
-    channel.bind('new-notification', (notification: Notification) => {
+    channel.bind("new-notification", () => {
       // 使用 SWR 的 mutate 來更新數據
       refetchNotifications();
     });
 
     // 監聽帖子更新（如點讚數變化）
-    channel.bind('post-updated', (data: { postId: string; likeCount: number; commentCount: number }) => {
-      // 這裡可以更新帖子數據
-      console.log('Post updated:', data);
-    });
+    channel.bind(
+      "post-updated",
+      (data: { postId: string; likeCount: number; commentCount: number }) => {
+        // 這裡可以更新帖子數據
+        console.log("Post updated:", data);
+      },
+    );
 
     return () => {
-      if (channelRef.current) {
+      if (channelRef.current && pusherClient && session?.user?.id) {
         pusherClient.unsubscribe(getNotificationChannel(session.user.id));
         channelRef.current = null;
       }

@@ -69,7 +69,9 @@ export default function PostModal({
               alt="like"
               className="w-5 h-5"
             />
-            <span className="text-sm">{likeCounts[modalPost.id] ?? modalPost.likeCount}</span>
+            <span className="text-sm">
+              {likeCounts[modalPost.id] ?? modalPost.likeCount}
+            </span>
           </button>
 
           <button

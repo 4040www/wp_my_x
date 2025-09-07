@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -85,18 +85,18 @@ export async function POST(
     try {
       await pusherServer.trigger(
         getPostChannel(originalPostId),
-        'post-updated',
+        "post-updated",
         {
           postId: originalPostId,
           likeCount: updatedPost?.likeCount ?? 0,
           commentCount: updatedPost?.comments?.length ?? 0,
           repostCount: updatedPost?.reposts?.length ?? 0,
           newRepost: repost,
-          userId
-        }
+          userId,
+        },
       );
     } catch (error) {
-      console.error('Failed to send realtime update:', error);
+      console.error("Failed to send realtime update:", error);
     }
 
     return NextResponse.json({

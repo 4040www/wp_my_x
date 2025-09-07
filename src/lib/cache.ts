@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 // 本地存儲快取工具
 export class LocalCache {
-  private static PREFIX = 'my-x-cache-';
+  private static PREFIX = "my-x-cache-";
   private static DEFAULT_TTL = 5 * 60 * 1000; // 5分鐘
 
   // 設置快取
@@ -15,7 +15,7 @@ export class LocalCache {
       };
       localStorage.setItem(this.PREFIX + key, JSON.stringify(item));
     } catch (error) {
-      console.warn('Failed to set cache:', error);
+      console.warn("Failed to set cache:", error);
     }
   }
 
@@ -36,7 +36,7 @@ export class LocalCache {
 
       return parsed.data;
     } catch (error) {
-      console.warn('Failed to get cache:', error);
+      console.warn("Failed to get cache:", error);
       return null;
     }
   }
@@ -46,7 +46,7 @@ export class LocalCache {
     try {
       localStorage.removeItem(this.PREFIX + key);
     } catch (error) {
-      console.warn('Failed to delete cache:', error);
+      console.warn("Failed to delete cache:", error);
     }
   }
 
@@ -54,13 +54,13 @@ export class LocalCache {
   static clear() {
     try {
       const keys = Object.keys(localStorage);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (key.startsWith(this.PREFIX)) {
           localStorage.removeItem(key);
         }
       });
     } catch (error) {
-      console.warn('Failed to clear cache:', error);
+      console.warn("Failed to clear cache:", error);
     }
   }
 
@@ -69,7 +69,7 @@ export class LocalCache {
     try {
       const keys = Object.keys(localStorage);
       let size = 0;
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (key.startsWith(this.PREFIX)) {
           size += localStorage.getItem(key)?.length || 0;
         }
@@ -83,8 +83,8 @@ export class LocalCache {
 
 // 快取鍵常量
 export const CACHE_KEYS = {
-  posts: 'posts',
-  notifications: 'notifications',
+  posts: "posts",
+  notifications: "notifications",
   search: (query: string) => `search-${query}`,
   user: (id: string) => `user-${id}`,
 } as const;
@@ -97,7 +97,7 @@ export function useAdvancedCache<T>(
     ttl?: number;
     fallbackToCache?: boolean;
     revalidateOnMount?: boolean;
-  } = {}
+  } = {},
 ) {
   const {
     ttl = LocalCache.DEFAULT_TTL,
@@ -119,7 +119,7 @@ export function useAdvancedCache<T>(
       LocalCache.set(key, result, ttl);
     } catch (err) {
       setError(err as Error);
-      
+
       // 如果啟用回退到快取
       if (fallbackToCache) {
         const cached = LocalCache.get(key);

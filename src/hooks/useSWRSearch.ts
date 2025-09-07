@@ -1,18 +1,18 @@
 "use client";
-import useSWR from 'swr';
-import { swrConfig, fetcher, SWR_KEYS } from '@/lib/swr';
-import { useState, useCallback } from 'react';
+import useSWR from "swr";
+import { swrConfig, SWR_KEYS } from "@/lib/swr";
+import { useState, useCallback } from "react";
 
 // 搜索 API 函數
 async function searchPosts(query: string) {
   if (!query.trim()) return [];
   const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-  if (!res.ok) throw new Error('Failed to search posts');
+  if (!res.ok) throw new Error("Failed to search posts");
   return res.json();
 }
 
 export function useSWRSearch() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
 
   // 搜索結果
@@ -20,7 +20,7 @@ export function useSWRSearch() {
     data: searchResults = [],
     error,
     isLoading,
-    mutate: refetch
+    mutate: refetch,
   } = useSWR(
     searchQuery ? SWR_KEYS.search(searchQuery) : null,
     () => searchPosts(searchQuery),
@@ -29,7 +29,7 @@ export function useSWRSearch() {
       revalidateOnMount: false,
       // 搜索結果快取 5 分鐘
       dedupingInterval: 5 * 60 * 1000,
-    }
+    },
   );
 
   // 執行搜索
@@ -40,16 +40,19 @@ export function useSWRSearch() {
 
   // 清除搜索
   const clearSearch = useCallback(() => {
-    setSearchQuery('');
+    setSearchQuery("");
     setHasSearched(false);
   }, []);
 
   // 獲取快取的搜索結果
-  const getCachedResults = useCallback((query: string) => {
-    if (!query.trim()) return null;
-    // 這裡可以實現更複雜的快取邏輯
-    return searchQuery === query ? searchResults : null;
-  }, [searchQuery, searchResults]);
+  const getCachedResults = useCallback(
+    (query: string) => {
+      if (!query.trim()) return null;
+      // 這裡可以實現更複雜的快取邏輯
+      return searchQuery === query ? searchResults : null;
+    },
+    [searchQuery, searchResults],
+  );
 
   return {
     searchQuery,
@@ -63,5 +66,3 @@ export function useSWRSearch() {
     refetch,
   };
 }
-
-

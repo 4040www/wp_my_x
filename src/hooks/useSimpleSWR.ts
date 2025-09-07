@@ -1,9 +1,9 @@
 "use client";
-import useSWR from 'swr';
-import useSWRMutation from 'swr/mutation';
+import useSWR from "swr";
+// import useSWRMutation from "swr/mutation";
 
 // 簡單的 fetcher
-const simpleFetcher = (url: string) => fetch(url).then(res => res.json());
+const simpleFetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // 簡單的 SWR 配置
 const simpleConfig = {
@@ -18,11 +18,11 @@ export function useSimplePosts(session: any) {
     data: feed = [],
     error,
     isLoading,
-    mutate: refetch
+    mutate: refetch,
   } = useSWR(
-    session?.user?.id ? '/api/posts' : null,
+    session?.user?.id ? "/api/posts" : null,
     simpleFetcher,
-    simpleConfig
+    simpleConfig,
   );
 
   return {
@@ -38,11 +38,11 @@ export function useSimpleNotifications(session: any) {
     data: notifications = [],
     error,
     isLoading,
-    mutate: refetch
+    mutate: refetch,
   } = useSWR(
-    session?.user?.id ? '/api/notifications' : null,
+    session?.user?.id ? "/api/notifications" : null,
     simpleFetcher,
-    simpleConfig
+    simpleConfig,
   );
 
   const unreadCount = notifications.filter((n: any) => !n.read).length;

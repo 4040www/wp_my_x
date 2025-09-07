@@ -68,20 +68,20 @@ export async function createNotification({
       },
       include: {
         sender: { select: { id: true, name: true, image: true } },
-        post: { 
-          select: { 
-            id: true, 
-            content: true, 
-            title: true,
-            author: { select: { id: true, name: true, image: true } }
-          } 
-        },
-        comment: { 
-          select: { 
-            id: true, 
+        post: {
+          select: {
+            id: true,
             content: true,
-            author: { select: { id: true, name: true, image: true } }
-          } 
+            title: true,
+            author: { select: { id: true, name: true, image: true } },
+          },
+        },
+        comment: {
+          select: {
+            id: true,
+            content: true,
+            author: { select: { id: true, name: true, image: true } },
+          },
         },
       },
     });
@@ -90,11 +90,11 @@ export async function createNotification({
     try {
       await pusherServer.trigger(
         getNotificationChannel(post.authorId),
-        'new-notification',
-        notification
+        "new-notification",
+        notification,
       );
     } catch (error) {
-      console.error('Failed to send realtime notification:', error);
+      console.error("Failed to send realtime notification:", error);
     }
 
     return notification;
@@ -104,7 +104,9 @@ export async function createNotification({
   }
 }
 
-export async function getUnreadNotificationCount(userId: string): Promise<number> {
+export async function getUnreadNotificationCount(
+  userId: string,
+): Promise<number> {
   try {
     const count = await prisma.notification.count({
       where: {
@@ -118,5 +120,3 @@ export async function getUnreadNotificationCount(userId: string): Promise<number
     return 0;
   }
 }
-
-

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "NTU X",
   description: "NTU X",
   icons: {
-    icon: '/twitter.ico',
+    icon: "/twitter.ico",
   },
 };
 

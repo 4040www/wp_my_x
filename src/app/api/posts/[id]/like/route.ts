@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
@@ -55,25 +55,21 @@ export async function POST(
 
     // 发送实时更新到所有订阅该帖子的用户
     try {
-      await pusherServer.trigger(
-        getPostChannel(postId),
-        'post-updated',
-        {
-          postId,
-          likeCount: post?.likeCount ?? 0,
-          commentCount: post?.comments?.length ?? 0,
-          repostCount: post?.reposts?.length ?? 0,
-          liked,
-          userId
-        }
-      );
+      await pusherServer.trigger(getPostChannel(postId), "post-updated", {
+        postId,
+        likeCount: post?.likeCount ?? 0,
+        commentCount: post?.comments?.length ?? 0,
+        repostCount: post?.reposts?.length ?? 0,
+        liked,
+        userId,
+      });
     } catch (error) {
-      console.error('Failed to send realtime update:', error);
+      console.error("Failed to send realtime update:", error);
     }
 
     return new Response(
       JSON.stringify({ liked, likeCount: post?.likeCount ?? 0, ...post }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {
     console.error(err);

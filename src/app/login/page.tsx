@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   // 如果已經登入，導向首頁
@@ -57,7 +57,7 @@ export default function SignInPage() {
               <span>Sign in with GitHub</span>
             </button>
             <p className="text-[#90abcb] text-sm font-normal leading-normal text-center underline pb-3 pt-1 px-4">
-              Don't have an account? Sign up
+              Don&apos;t have an account? Sign up
             </p>
           </div>
         </div>

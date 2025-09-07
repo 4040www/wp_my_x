@@ -1,4 +1,4 @@
-import { SWRConfiguration } from 'swr';
+import { SWRConfiguration } from "swr";
 
 // SWR 全局配置
 export const swrConfig: SWRConfiguration = {
@@ -17,7 +17,7 @@ export const swrConfig: SWRConfiguration = {
 };
 
 // 通用 fetcher 函數
-export const fetcher = (url: string) => 
+export const fetcher = (url: string) =>
   fetch(url).then((res) => {
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
@@ -26,11 +26,11 @@ export const fetcher = (url: string) =>
   });
 
 // 帶認證的 fetcher 函數
-export const authFetcher = (url: string, token?: string) => 
+export const authFetcher = (url: string, token?: string) =>
   fetch(url, {
     headers: {
-      'Authorization': token ? `Bearer ${token}` : '',
-      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
     },
   }).then((res) => {
     if (!res.ok) {
@@ -41,12 +41,10 @@ export const authFetcher = (url: string, token?: string) =>
 
 // 查詢鍵常量
 export const SWR_KEYS = {
-  posts: ['posts'] as const,
-  post: (id: string) => ['posts', id] as const,
-  notifications: ['notifications'] as const,
-  search: (query: string) => ['search', query] as const,
-  user: (id: string) => ['user', id] as const,
-  feed: ['feed'] as const,
+  posts: ["posts"] as const,
+  post: (id: string) => ["posts", id] as const,
+  notifications: ["notifications"] as const,
+  search: (query: string) => ["search", query] as const,
+  user: (id: string) => ["user", id] as const,
+  feed: ["feed"] as const,
 } as const;
-
-

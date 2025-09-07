@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export function usePostModal(
   feed?: FeedItem[],
-  setFeed?: React.Dispatch<React.SetStateAction<FeedItem[]>>
+  setFeed?: React.Dispatch<React.SetStateAction<FeedItem[]>>,
 ) {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
@@ -13,7 +13,7 @@ export function usePostModal(
     // 如果已存在於 feed（或沒有給 setFeed），就不再抓
     const exists =
       feed?.some(
-        (it) => it.post.id === postId || it.post.repostOf?.id === postId
+        (it) => it.post.id === postId || it.post.repostOf?.id === postId,
       ) ?? false;
     if (exists || !setFeed) return;
 

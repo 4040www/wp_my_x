@@ -53,10 +53,14 @@ export default function PostActions({
           disabled={repostDisabled}
           title={repostDisabled ? "Already reposted" : "Repost"}
         >
-          <img 
-            src="/icons/repost.svg" 
-            alt="repost" 
-            className={`w-5 h-5 ${repostDisabled ? "filter brightness-0 saturate-100 invert sepia-100 saturate-1000 hue-rotate-90" : ""}`}
+          <img
+            src="/icons/repost.svg"
+            alt="repost"
+            className={`w-5 h-5 ${
+              repostDisabled
+                ? "filter brightness-0 saturate-100 invert sepia-100 saturate-1000 hue-rotate-90"
+                : ""
+            }`}
           />
           <span className="text-sm">{repostCount ?? 0}</span>
         </button>

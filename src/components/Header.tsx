@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Popover } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState } from "react";
-import { useSimpleNotifications } from "@/hooks/useSimpleSWR";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 interface HeaderProps {
@@ -22,8 +21,8 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
   // 標記所有通知為已讀
   const markAllAsRead = () => {
     const unreadIds = notifications
-      .filter((n: any) => !n.read)
-      .map((n: any) => n.id);
+      .filter((n: { read: boolean; id: string }) => !n.read)
+      .map((n: { id: string }) => n.id);
     if (unreadIds.length > 0) {
       fetch('/api/notifications', {
         method: 'PATCH',
@@ -110,7 +109,15 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
               <p className="text-[#90abcb] text-sm text-center py-4">No notifications yet</p>
             ) : (
               <ul className="space-y-2 text-sm">
-                {notifications.map((notification: any) => (
+                {notifications.map((notification: { 
+                  id: string; 
+                  read: boolean; 
+                  content: string; 
+                  createdAt: string; 
+                  sender: { image?: string }; 
+                  comment?: { content: string }; 
+                  post: { id: string } 
+                }) => (
                   <li
                     key={notification.id}
                     className={`p-3 rounded-md cursor-pointer transition-colors ${
@@ -144,7 +151,7 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
                         </p>
                         {notification.comment && (
                           <p className="text-[#90abcb] text-xs mt-1 italic">
-                            "{notification.comment.content}"
+                            &ldquo;{notification.comment.content}&rdquo;
                           </p>
                         )}
                       </div>
