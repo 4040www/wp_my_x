@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NTU X",
-  description: "NTU X",
+  title: "MY X",
+  description: "MY X",
   icons: {
     icon: "/twitter.ico",
   },

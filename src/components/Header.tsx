@@ -47,7 +47,7 @@ export default function Header({ onSearch, searchQuery = "", onNotificationClick
           </svg>
         </div>
         <h1 className="text-2xl font-bold tracking-wide group-hover:text-[#73b4ff] transition-colors">
-          NTU X
+          MY X
         </h1>
       </Link>
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
+import AuthGuard from "@/components/AuthGuard";
 
 export default function NewPostPage() {
   const { data: session } = useSession();
@@ -45,13 +46,10 @@ export default function NewPostPage() {
     }
   }
 
-  if (!session) {
-    return <div className="p-10">請先登入</div>;
-  }
-
   return (
-    <div className="bg-[#101923] min-h-screen text-white flex flex-col">
-      <Header />
+    <AuthGuard>
+      <div className="bg-[#101923] min-h-screen text-white flex flex-col">
+        <Header />
       {/* 垂直置中 */}
       <div className="flex-1 flex items-start justify-center mt-20">
         <div className="w-full max-w-2xl px-5">
@@ -113,6 +111,7 @@ export default function NewPostPage() {
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

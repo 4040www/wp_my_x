@@ -1,36 +1,224 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My-X – Social Media Platform
 
-## Getting Started
+A modern social media application built with **Next.js 15**, featuring real-time interactions, notification systems, and advanced search capabilities.
 
-First, run the development server:
+## 🌐 Live Demo
+
+👉 [https://wp-my-x.vercel.app/](https://wp-my-x.vercel.app/)
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+* Node.js 18+
+* npm or yarn
+* PostgreSQL database (Supabase recommended)
+
+### Installation & Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/4040www/wp_my_x.git
+cd my-x
+
+# Install dependencies
+npm install
+
+# Set environment variables
+cp .env.example .env.local
+# Edit .env.local with your own configuration
+
+# Generate Prisma client
+npx prisma generate
+
+# Apply database schema
+npx prisma db push
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📦 Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Core
 
-## Learn More
+* **Next.js 15.5.2** – Full-stack React framework
+* **React 18** – UI library
+* **TypeScript** – Type safety
 
-To learn more about Next.js, take a look at the following resources:
+### Database & ORM
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* **Prisma 6.15.0** – Type-safe ORM
+* **PostgreSQL** – Relational database
+* **NextAuth.js** – Authentication & session management
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### State & Data Fetching
 
-## Deploy on Vercel
+* **SWR** – Data fetching and caching
+* **React Hooks** – Local state management
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Real-time
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **Pusher** – Real-time updates and notifications
+* **pusher-js** – Client-side integration
+
+### UI & Styling
+
+* **Tailwind CSS** – Utility-first styling
+* **Headless UI** – Accessible, unstyled components
+* **Lucide React** – Icon library
+
+### Deployment
+
+* **Vercel** – Hosting and deployment platform
+
+## ✨ Features
+
+### 🔐 Authentication
+
+* Google OAuth login / GitHub OAuth login
+* Secure session management
+* User profile handling
+
+### 📝 Content Management
+
+* Create posts and reposts
+* Real-time likes and comments
+* Content search
+
+### 🔔 Notifications
+
+* Like notifications
+* Comment notifications
+* Repost notifications
+* Instant UI updates
+
+### 🔍 Search
+
+* Search by author
+* Search by content
+* Live search results
+
+### 📱 Responsive Design
+
+* Mobile-first optimization
+* Modern UI
+* Smooth user experience
+
+## 📁 Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   │   ├── auth/          # Authentication
+│   │   ├── posts/         # Post APIs
+│   │   ├── search/        # Search APIs
+│   │   └── notifications/ # Notifications APIs
+│   ├── login/             # Login page
+│   └── page.tsx           # Homepage
+├── components/            # Reusable React components
+│   ├── Header.tsx
+│   ├── PostCard.tsx
+│   ├── PostModal.tsx
+│   ├── CommentInput.tsx
+│   └── PostActions.tsx
+├── hooks/                 # Custom React hooks
+│   ├── useSWRFeed.ts
+│   ├── useSWRSearch.ts
+│   ├── useSWRNotifications.ts
+│   ├── useRealtimePosts.ts
+│   └── useRealtimeNotifications.ts
+├── lib/                   # Utilities
+│   ├── prisma.ts
+│   ├── pusher.ts
+│   ├── swr.ts
+│   └── notifications.ts
+└── types/                 # TypeScript types
+    └── post.ts
+
+prisma/
+├── schema.prisma          # Database schema
+└── migrations/            # Database migrations
+
+public/
+├── icons/                 # Icons
+└── images/                # Static images
+```
+
+## 🗄️ Database Design
+
+### Models
+
+* **User** – User profiles
+* **Post** – Posts and reposts
+* **Comment** – Comments on posts
+* **Notification** – Event notifications
+* **Account/Session** – Managed by NextAuth
+
+### Relationships
+
+* A user can create multiple posts
+* Posts can have multiple comments
+* Supports repost functionality
+* Real-time notifications
+
+## 🔧 Environment Variables
+
+```env
+# Database
+DATABASE_URL="postgresql://..."
+
+# NextAuth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret"
+
+# Google OAuth
+GOOGLE_CLIENT_ID="your-client-id"
+GOOGLE_CLIENT_SECRET="your-client-secret"
+
+# Pusher
+NEXT_PUBLIC_PUSHER_KEY="your-pusher-key"
+NEXT_PUBLIC_PUSHER_CLUSTER="your-cluster"
+PUSHER_APP_ID="your-app-id"
+PUSHER_SECRET="your-secret"
+```
+
+## 🚀 Deployment
+
+### Deploying to Vercel
+
+1. Connect your GitHub repository to Vercel
+2. Configure environment variables
+3. Deploy automatically
+
+### Environment Configuration
+
+Set all required variables via the Vercel dashboard.
+
+## 📝 Development Guide
+
+### Adding Features
+
+1. Create a component under `src/components/`
+2. Add logic in `src/hooks/`
+3. Create an API route in `src/app/api/`
+4. Update Prisma schema if needed
+
+### Database Changes
+
+```bash
+# After modifying schema.prisma
+npx prisma db push
+
+# Create a new migration
+npx prisma migrate dev --name your-migration-name
+```
+
+---
+
+**Support**: For issues, please check the GitHub Issues section or contact the development team.

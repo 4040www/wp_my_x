@@ -1,9 +1,9 @@
 "use client";
 
 import Header from "@/components/Header";
+import AuthGuard from "@/components/AuthGuard";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-// import { useRouter } from "next/navigation";
 
 import { useSimplePosts } from "@/hooks/useSimpleSWR";
 import { useSWRSearch } from "@/hooks/useSWRSearch";
@@ -16,8 +16,6 @@ import PostModal from "@/components/PostModal";
 
 export default function Home() {
   const { data: session } = useSession();
-  // const router = useRouter();
-
   const { feed, isLoading: feedLoading, refetch } = useSimplePosts(session);
 
   // 狀態管理
@@ -285,21 +283,20 @@ export default function Home() {
   const isLoading = hasSearched ? searchLoading : feedLoading;
 
   return (
-    <div className="bg-[#101923] text-white font-sans">
-      <Header
-        onSearch={performSearch}
-        searchQuery={searchQuery}
-        onNotificationClick={openPostModal}
-      />
-      <main className="flex flex-col items-center px-10 py-5 max-w-screen overflow-y-scroll scrollbar-none">
+    <AuthGuard>
+      <div className="bg-[#101923] text-white font-sans">
+        <Header
+          onSearch={performSearch}
+          searchQuery={searchQuery}
+          onNotificationClick={openPostModal}
+        />
+        <main className="flex flex-col items-center px-10 py-5 max-w-screen overflow-y-scroll scrollbar-none">
         <div className="h-[calc(100vh-120px)] w-3xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">
                {hasSearched
                  ? `Search Results${searchQuery ? ` for &ldquo;${searchQuery}&rdquo;` : ""}`
-                 : session
-                 ? "Home"
-                 : "You are not logged in yet!"}
+                 : "Home"}
             </h2>
             {hasSearched && (
               <button
@@ -371,6 +368,7 @@ export default function Home() {
       >
         + New Post
       </Link>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }
