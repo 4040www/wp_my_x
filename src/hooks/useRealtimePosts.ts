@@ -3,25 +3,6 @@ import { useEffect, useRef } from "react";
 import { pusherClient, getPostChannel } from "@/lib/pusher";
 import type { Channel } from "pusher-js";
 
-interface PostUpdateData {
-  postId: string;
-  likeCount: number;
-  commentCount: number;
-  repostCount: number;
-  liked?: boolean;
-  newComment?: {
-    id: string;
-    content: string;
-    author: { id: string; name: string | null; image: string | null };
-  };
-  newRepost?: {
-    id: string;
-    createdAt: string;
-    author: { id: string; name: string | null; image: string | null };
-  };
-  userId: string;
-}
-
 export function useRealtimePosts(
   postIds: string[],
   onPostUpdate: (data: PostUpdateData) => void,

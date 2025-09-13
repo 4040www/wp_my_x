@@ -5,7 +5,7 @@ import AuthGuard from "@/components/AuthGuard";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-import { useSimplePosts } from "@/hooks/useSimpleSWR";
+import { useInfiniteScrollPosts } from "@/hooks/usePaginatedPosts";
 import { useSWRSearch } from "@/hooks/useSWRSearch";
 import { usePostModal } from "@/hooks/usePostModal";
 import { useRealtimePosts } from "@/hooks/useRealtimePosts";
@@ -16,7 +16,14 @@ import PostModal from "@/components/PostModal";
 
 export default function Home() {
   const { data: session } = useSession();
-  const { feed, isLoading: feedLoading, refetch } = useSimplePosts(session);
+  const { 
+    posts: feed, 
+    isLoading: feedLoading, 
+    isValidating,
+    hasMore,
+    loadMore,
+    refetch 
+  } = useInfiniteScrollPosts(session, 10);
 
   // 狀態管理
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
@@ -341,6 +348,33 @@ export default function Home() {
               />
             </div>
           ))}
+
+          {/* 載入更多按鈕 */}
+          {!hasSearched && hasMore && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={loadMore}
+                disabled={isValidating}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isValidating ? "載入中..." : "載入更多"}
+              </button>
+            </div>
+          )}
+
+          {/* 載入中指示器 */}
+          {!hasSearched && isValidating && feed.length > 0 && (
+            <div className="flex justify-center mt-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+          )}
+
+          {/* 沒有更多數據提示 */}
+          {!hasSearched && !hasMore && feed.length > 0 && (
+            <div className="text-center py-8 text-[#90abcb]">
+              已載入所有貼文
+            </div>
+          )}
         </div>
       </main>
 

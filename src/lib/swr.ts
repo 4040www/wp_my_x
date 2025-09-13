@@ -8,7 +8,13 @@ export const swrConfig: SWRConfiguration = {
   errorRetryCount: 3,
   errorRetryInterval: 5000,
   // 簡化錯誤重試策略
-  onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+  onErrorRetry: (
+    error: any,
+    key: string,
+    config: SWRConfiguration,
+    revalidate: () => void,
+    { retryCount }: { retryCount: number }
+  ) => {
     // 404 錯誤不重試
     if (error.status === 404) return;
     // 最多重試 3 次
@@ -25,19 +31,19 @@ export const fetcher = (url: string) =>
     return res.json();
   });
 
-// 帶認證的 fetcher 函數
-export const authFetcher = (url: string, token?: string) =>
-  fetch(url, {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    return res.json();
-  });
+// 帶認證的 fetcher 函數 (本專案使用 db session 這部分不會使用到)
+// export const authFetcher = (url: string, token?: string) =>
+//   fetch(url, {
+//     headers: {
+//       Authorization: token ? `Bearer ${token}` : "",
+//       "Content-Type": "application/json",
+//     },
+//   }).then((res) => {
+//     if (!res.ok) {
+//       throw new Error(`HTTP error! status: ${res.status}`);
+//     }
+//     return res.json();
+//   });
 
 // 查詢鍵常量
 export const SWR_KEYS = {

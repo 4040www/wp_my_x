@@ -21,7 +21,7 @@ export default function CommentInput({
   showSubmitButton?: boolean;
 }) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 w-2xl">
       <input
         type="text"
         placeholder="Write a comment..."

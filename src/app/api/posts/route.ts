@@ -5,12 +5,20 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     const currentUserId = session?.user?.id;
+    
+    // 獲取分頁參數
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const offset = (page - 1) * limit;
 
     const posts = await prisma.post.findMany({
+      take: limit,
+      skip: offset,
       include: {
         author: true,
         likes: {
@@ -71,7 +79,23 @@ export async function GET() {
       },
     }));
 
-    return NextResponse.json(feed);
+    // 獲取總數用於分頁
+    const totalCount = await prisma.post.count();
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
+    return NextResponse.json({
+      data: feed,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPrevPage,
+      },
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

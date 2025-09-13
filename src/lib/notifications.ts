@@ -3,13 +3,6 @@ import { pusherServer, getNotificationChannel } from "./pusher";
 
 const prisma = new PrismaClient();
 
-export interface CreateNotificationParams {
-  type: "like" | "comment" | "repost";
-  senderId: string;
-  postId: string;
-  commentId?: string;
-}
-
 export async function createNotification({
   type,
   senderId,

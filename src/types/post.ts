@@ -1,9 +1,3 @@
-interface PostComment {
-  id: string;
-  content: string;
-  author: User;
-}
-
 interface Post {
   id: string;
   title?: string;
@@ -17,9 +11,34 @@ interface Post {
   createdAt?: string;
 }
 
+interface PostComment {
+  id: string;
+  content: string;
+  author: User;
+}
+
 interface FeedItem {
   type: "post" | "repost";
   createdAt: string;
   post: Post;
   repostedBy?: User;
+}
+
+interface PostUpdateData {
+  postId: string;
+  likeCount: number;
+  commentCount: number;
+  repostCount: number;
+  liked?: boolean;
+  newComment?: {
+    id: string;
+    content: string;
+    author: { id: string; name: string | null; image: string | null };
+  };
+  newRepost?: {
+    id: string;
+    createdAt: string;
+    author: { id: string; name: string | null; image: string | null };
+  };
+  userId: string;
 }
