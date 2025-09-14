@@ -15,6 +15,7 @@ interface PostComment {
   id: string;
   content: string;
   author: User;
+  createdAt?: string;
 }
 
 interface FeedItem {

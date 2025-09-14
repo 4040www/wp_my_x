@@ -47,7 +47,7 @@ Visit [http://localhost:3000](http://localhost:3000) to view the app.
 ### Core
 
 * **Next.js 15.5.2** – Full-stack React framework
-* **React 18** – UI library
+* **React 19.1.0** – UI library
 * **TypeScript** – Type safety
 
 ### Database & ORM
@@ -89,6 +89,8 @@ Visit [http://localhost:3000](http://localhost:3000) to view the app.
 * Create posts and reposts
 * Real-time likes and comments
 * Content search
+* **Markdown support** with syntax highlighting
+* **Pagination & infinite scroll**
 
 ### 🔔 Notifications
 
@@ -96,6 +98,7 @@ Visit [http://localhost:3000](http://localhost:3000) to view the app.
 * Comment notifications
 * Repost notifications
 * Instant UI updates
+* **Optimistic updates** for better UX
 
 ### 🔍 Search
 
@@ -180,6 +183,10 @@ NEXTAUTH_SECRET="your-secret"
 # Google OAuth
 GOOGLE_CLIENT_ID="your-client-id"
 GOOGLE_CLIENT_SECRET="your-client-secret"
+
+# GitHub OAuth
+GITHUB_CLIENT_ID="your-client-id"
+GITHUB_CLIENT_SECRET="your-client-secret"
 
 # Pusher
 NEXT_PUBLIC_PUSHER_KEY="your-pusher-key"

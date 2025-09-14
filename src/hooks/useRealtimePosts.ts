@@ -12,11 +12,14 @@ export function useRealtimePosts(
   useEffect(() => {
     if (!pusherClient || postIds.length === 0) return;
 
+    // 捕獲當前的 channels 引用
+    const currentChannels = channelsRef.current;
+
     // 订阅所有帖子的更新频道
     postIds.forEach((postId) => {
-      if (!channelsRef.current.has(postId) && pusherClient) {
+      if (!currentChannels.has(postId) && pusherClient) {
         const channel = pusherClient.subscribe(getPostChannel(postId));
-        channelsRef.current.set(postId, channel);
+        currentChannels.set(postId, channel);
 
         // 监听帖子更新事件
         channel.bind("post-updated", (data: PostUpdateData) => {
@@ -27,13 +30,12 @@ export function useRealtimePosts(
 
     // 清理函数
     return () => {
-      const currentChannels = channelsRef.current;
       if (pusherClient) {
         currentChannels.forEach((channel, postId) => {
           pusherClient?.unsubscribe(getPostChannel(postId));
         });
+        currentChannels.clear();
       }
-      currentChannels.clear();
     };
   }, [postIds, onPostUpdate]);
 
