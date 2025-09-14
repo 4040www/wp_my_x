@@ -130,34 +130,32 @@ export default function Home() {
     commentCount: number; 
     repostCount: number; 
     liked?: boolean; 
-    userId: string 
+    userId: string;
+    newComment?: any;
   }) => {
-    const { postId, likeCount, commentCount, repostCount, liked, userId } =
+    const { postId, likeCount, commentCount, repostCount, liked, userId, newComment } =
       data;
 
-    // 如果是当前用户的操作，跳过（避免重复更新）
-    if (userId === session?.user?.id) return;
-
-    // 更新点赞数
+    // 更新点赞数（所有用戶）
     setLikeCounts((prev) => ({
       ...prev,
       [postId]: likeCount,
     }));
 
-    // 更新评论数
+    // 更新评论数（所有用戶）
     setCommentCounts((prev) => ({
       ...prev,
       [postId]: commentCount,
     }));
 
-    // 更新转發数
+    // 更新转發数（所有用戶）
     setRepostCounts((prev) => ({
       ...prev,
       [postId]: repostCount,
     }));
 
-    // 如果有新的点赞状态，更新点赞列表
-    if (liked !== undefined) {
+    // 如果有新的点赞状态，更新点赞列表（只處理其他用戶的點讚）
+    if (liked !== undefined && userId !== session?.user?.id) {
       setLikedPosts((prev) => {
         if (liked && !prev.includes(postId)) {
           return [...prev, postId];
@@ -166,6 +164,11 @@ export default function Home() {
         }
         return prev;
       });
+    }
+
+    // 如果有新留言，重新獲取貼文列表以顯示新留言
+    if (newComment) {
+      refetch();
     }
   };
 
@@ -253,6 +256,12 @@ export default function Home() {
       
       const result = await response.json();
       console.log("Comment successful:", result);
+      
+      // 留言成功後立即重新獲取貼文列表以顯示新留言
+      console.log("Comment successful, refetching posts...");
+      setTimeout(() => {
+        refetch();
+      }, 100);
     } catch (error) {
       // 如果失敗，回滾評論數
       setCommentCounts((prev) => ({ ...prev, [postId]: originalCommentCount }));
