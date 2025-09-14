@@ -445,6 +445,7 @@ export default function Home() {
           modalPost={modalPost}
           likedPosts={likedPosts}
           likeCounts={likeCounts}
+          commentCounts={commentCounts}
           onClose={closePostModal}
           onLike={handleLike}
           onRepost={handleRepost}

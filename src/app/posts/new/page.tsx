@@ -88,6 +88,7 @@ export default function NewPostPage() {
                 focus:ring-0
                 focus:border-none
                 min-h-[200px]
+                max-h-[600px]
               "
             />
 

@@ -3,11 +3,112 @@ import React, { useEffect } from "react";
 import CommentsList from "@/components/CommentsList";
 import CommentInput from "@/components/CommentInput";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+// Modal 專用的 Markdown 渲染器，使用深色文字
+function ModalMarkdownRenderer({ content }: { content: string }) {
+  return (
+    <div className="text-gray-800 dark:text-gray-200">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          // 段落樣式
+          p: ({ children }) => (
+            <p className="text-gray-800 dark:text-gray-200 mb-3 leading-relaxed break-words">
+              {children}
+            </p>
+          ),
+          
+          // 列表樣式
+          ul: ({ children }) => (
+            <ul className="list-disc list-inside mb-3 text-gray-800 dark:text-gray-200 space-y-1">
+              {children}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal list-inside mb-3 text-gray-800 dark:text-gray-200 space-y-1">
+              {children}
+            </ol>
+          ),
+          li: ({ children }) => (
+            <li className="text-gray-800 dark:text-gray-200">
+              {children}
+            </li>
+          ),
+          
+          // 引用樣式
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-3 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 italic rounded-r-lg">
+              {children}
+            </blockquote>
+          ),
+          
+          // 代碼樣式
+          code: ({ children, className }) => {
+            const isInline = !className;
+            if (isInline) {
+              return (
+                <code className="bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono">
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <code className={className}>
+                {children}
+              </code>
+            );
+          },
+          pre: ({ children }) => (
+            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3 text-sm">
+              {children}
+            </pre>
+          ),
+          
+          // 鏈接樣式
+          a: ({ children, href }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+            >
+              {children}
+            </a>
+          ),
+          
+          // 強調樣式 - 在白色背景下使用深色
+          strong: ({ children }) => (
+            <strong className="font-bold text-gray-900 dark:text-white">
+              {children}
+            </strong>
+          ),
+          em: ({ children }) => (
+            <em className="italic text-gray-700 dark:text-gray-300">
+              {children}
+            </em>
+          ),
+          
+          // 刪除線
+          del: ({ children }) => (
+            <del className="line-through text-gray-500 dark:text-gray-400">
+              {children}
+            </del>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+}
 
 export default function PostModal({
   modalPost,
   likedPosts,
   likeCounts,
+  commentCounts,
   onClose,
   onLike,
   onRepost,
@@ -20,6 +121,7 @@ export default function PostModal({
   modalPost: Post;
   likedPosts: string[];
   likeCounts: Record<string, number>;
+  commentCounts: Record<string, number>;
   onClose: () => void;
   onLike: (postId: string) => void;
   onRepost?: (postId: string) => void;
@@ -57,7 +159,7 @@ export default function PostModal({
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] animate-in zoom-in-95 duration-200 overflow-y-auto"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -113,7 +215,7 @@ export default function PostModal({
 
           {/* Post content */}
           <div className="prose dark:prose-invert max-w-none">
-            <MarkdownRenderer content={basePost.content} />
+            <ModalMarkdownRenderer content={basePost.content} />
           </div>
         </div>
 
@@ -143,7 +245,9 @@ export default function PostModal({
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <span className="text-sm font-medium">{modalPost.comments.length}</span>
+                <span className="text-sm font-medium">
+                  {commentCounts[modalPost.id] ?? modalPost.comments.length}
+                </span>
               </div>
 
               {/* Repost button */}
@@ -168,27 +272,32 @@ export default function PostModal({
         </div>
 
         {/* Comments section */}
-        <div className="border-t border-gray-200 dark:border-gray-700">
-          <div className="px-6 py-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 flex-1 flex flex-col min-h-0">
+          <div className="px-6 py-4 flex-1 flex flex-col min-h-0">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Comments ({modalPost.comments.length})
+              Comments ({commentCounts[modalPost.id] ?? modalPost.comments.length})
             </h4>
             
             {/* Comments list */}
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-6 flex-1 overflow-y-auto">
               <CommentsList comments={modalPost.comments} />
             </div>
 
             {/* Comment input */}
-            <CommentInput
-              postId={modalPost.id}
-              value={commentValue(modalPost.id)}
-              onChange={(v) => setCommentValue(modalPost.id, v)}
-              onSubmit={() => onSubmitComment(modalPost.id)}
-              disabled={commentLoading(modalPost.id)}
-              autoFocus={true}
-              showSubmitButton={true}
-            />
+            <div className="flex-shrink-0">
+              <CommentInput
+                postId={modalPost.id}
+                value={commentValue(modalPost.id)}
+                onChange={(v) => setCommentValue(modalPost.id, v)}
+                onSubmit={() => {
+                  onSubmitComment(modalPost.id);
+                  // 留言後不自動滾動，保持當前位置
+                }}
+                disabled={commentLoading(modalPost.id)}
+                autoFocus={false}
+                showSubmitButton={true}
+              />
+            </div>
           </div>
         </div>
       </div>

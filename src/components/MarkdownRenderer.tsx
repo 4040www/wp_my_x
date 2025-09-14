@@ -164,12 +164,12 @@ export default function 目前載入({ content, className = "" }: MarkdownRender
           
           // 強調樣式
           strong: ({ children }) => (
-            <strong className="font-bold text-white">
+            <strong className="font-bold text-yellow-400">
               {children}
             </strong>
           ),
           em: ({ children }) => (
-            <em className="italic text-gray-200">
+            <em className="italic text-yellow-300">
               {children}
             </em>
           ),
