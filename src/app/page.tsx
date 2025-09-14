@@ -51,9 +51,9 @@ export default function Home() {
 
   const { selectedPostId, openPostModal, closePostModal } = usePostModal();
 
-  // 初始化點讚和轉發狀態
+  // 初始化點讚和轉發狀態 - 只在首次載入時執行
   useEffect(() => {
-    if (feed && session?.user?.id && feed.length > 0) {
+    if (feed && session?.user?.id && feed.length > 0 && likedPosts.length === 0) {
       const currentUserId = session.user.id;
       const initialLikedPosts: string[] = [];
       const initialRepostedPosts: string[] = [];
@@ -104,46 +104,12 @@ export default function Home() {
         }
       });
 
-      // 只在狀態真正改變時才更新
-      setLikedPosts((prev) => {
-        const newSet = new Set(initialLikedPosts);
-        const prevSet = new Set(prev);
-        if (
-          newSet.size !== prevSet.size ||
-          !initialLikedPosts.every((id) => prevSet.has(id))
-        ) {
-          return initialLikedPosts;
-        }
-        return prev;
-      });
-
-      setRepostedPosts((prev) => {
-        const newSet = new Set(initialRepostedPosts);
-        const prevSet = new Set(prev);
-        if (
-          newSet.size !== prevSet.size ||
-          !initialRepostedPosts.every((id) => prevSet.has(id))
-        ) {
-          return initialRepostedPosts;
-        }
-        return prev;
-      });
-
-      setLikeCounts((prev) => {
-        const hasChanged = Object.keys(initialLikeCounts).some(
-          (key) => prev[key] !== initialLikeCounts[key],
-        );
-        return hasChanged ? initialLikeCounts : prev;
-      });
-
-      setCommentCounts((prev) => {
-        const hasChanged = Object.keys(initialCommentCounts).some(
-          (key) => prev[key] !== initialCommentCounts[key],
-        );
-        return hasChanged ? initialCommentCounts : prev;
-      });
+      setLikedPosts(initialLikedPosts);
+      setRepostedPosts(initialRepostedPosts);
+      setLikeCounts(initialLikeCounts);
+      setCommentCounts(initialCommentCounts);
     }
-  }, [feed, session?.user?.id]); // 依賴於 feed 和用戶 ID
+  }, [feed, session?.user?.id, likedPosts.length]); // 添加 likedPosts.length 作為條件
 
   // 获取所有帖子的ID用于实时订阅
   const postIds =
@@ -205,8 +171,6 @@ export default function Home() {
     const isLiked = likedPosts.includes(postId);
     const currentCount = likeCounts[postId] || 0;
     
-    console.log("Like clicked:", { postId, isLiked, currentCount });
-    
     // 保存原始狀態用於回滾
     const originalLikedPosts = [...likedPosts];
     const originalLikeCount = likeCounts[postId] || 0;
@@ -216,7 +180,6 @@ export default function Home() {
       : [...likedPosts, postId];
 
     // 樂觀更新 UI - 點讚狀態和數字
-    console.log("Updating UI optimistically:", { newLikedPosts, newCount: isLiked ? currentCount - 1 : currentCount + 1 });
     setLikedPosts(newLikedPosts);
     setLikeCounts((prev) => ({
       ...prev,
@@ -353,14 +316,14 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      <div className="bg-[#101923] text-white font-sans">
+      <div className="min-h-screen bg-[#101923] text-white font-sans">
         <Header
           onSearch={performSearch}
           searchQuery={searchQuery}
           onNotificationClick={openPostModal}
         />
-        <main className="flex flex-col items-center px-4 py-6 max-w-4xl mx-auto overflow-y-scroll scrollbar-none">
-        <div className="w-full max-w-2xl space-y-6">
+        <main className="flex flex-col items-center px-4 py-6 max-w-4xl mx-auto min-h-[calc(100vh-120px)] bg-[#101923]">
+          <div className="w-full max-w-2xl space-y-6 flex-1 flex flex-col">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
@@ -381,7 +344,7 @@ export default function Home() {
           </div>
 
           {isLoading && (
-            <div className="text-center py-12">
+            <div className="flex-1 flex items-center justify-center py-12">
               <div className="inline-flex items-center gap-3 text-white">
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
                 <span className="text-lg font-medium">
@@ -392,7 +355,7 @@ export default function Home() {
           )}
 
           {!isLoading && displayData.length === 0 && hasSearched && (
-            <div className="text-center py-12">
+            <div className="flex-1 flex items-center justify-center py-12">
               <div className="inline-flex flex-col items-center gap-4 p-8 bg-gray-900/50 rounded-2xl border border-gray-800">
                 <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -409,28 +372,30 @@ export default function Home() {
             </div>
           )}
 
-          {displayData.map((item: FeedItem, idx: number) => (
-            <div key={`${item.type}-${item.post.id}-${item.createdAt}-${idx}`}>
-              <PostCard
-                item={item}
-                likedPosts={likedPosts}
-                likeCounts={likeCounts}
-                commentCounts={commentCounts}
-                repostCounts={repostCounts}
-                onOpenModal={openPostModal}
-                onLike={handleLike}
-                onRepost={handleRepost}
-                onOpenComments={openPostModal}
-                repostDisabledForId={(id) => repostedPosts.includes(id)}
-                commentValue={(id) => commentValues[id] || ""}
-                setCommentValue={(id, v) =>
-                  setCommentValues((prev) => ({ ...prev, [id]: v }))
-                }
-                commentLoading={(id) => commentLoading[id] || false}
-                onSubmitComment={handleComment}
-              />
-            </div>
-          ))}
+          <div className="flex-1">
+            {displayData.map((item: FeedItem, idx: number) => (
+              <div key={`${item.type}-${item.post.id}-${item.createdAt}-${idx}`}>
+                <PostCard
+                  item={item}
+                  likedPosts={likedPosts}
+                  likeCounts={likeCounts}
+                  commentCounts={commentCounts}
+                  repostCounts={repostCounts}
+                  onOpenModal={openPostModal}
+                  onLike={handleLike}
+                  onRepost={handleRepost}
+                  onOpenComments={openPostModal}
+                  repostDisabledForId={(id) => repostedPosts.includes(id)}
+                  commentValue={(id) => commentValues[id] || ""}
+                  setCommentValue={(id, v) =>
+                    setCommentValues((prev) => ({ ...prev, [id]: v }))
+                  }
+                  commentLoading={(id) => commentLoading[id] || false}
+                  onSubmitComment={handleComment}
+                />
+              </div>
+            ))}
+          </div>
 
           {/* 載入更多按鈕 */}
           {!hasSearched && hasMore && (

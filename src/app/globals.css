@@ -117,7 +117,10 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#101923] text-white;
+  }
+  html {
+    @apply bg-[#101923];
   }
 }
 

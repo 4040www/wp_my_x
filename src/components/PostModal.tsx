@@ -57,7 +57,7 @@ export default function PostModal({
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] animate-in zoom-in-95 duration-200 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -91,7 +91,7 @@ export default function PostModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-300px)]">
+        <div className="p-6">
           {/* Repost indicator */}
           {isRepost && modalPost.repostOf && (
             <div className="flex items-center space-x-2 mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -175,7 +175,7 @@ export default function PostModal({
             </h4>
             
             {/* Comments list */}
-            <div className="space-y-4 mb-6 max-h-60 overflow-y-auto">
+            <div className="space-y-4 mb-6">
               <CommentsList comments={modalPost.comments} />
             </div>
 
