@@ -10,7 +10,7 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
-export default function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
+export default function 目前載入({ content, className = "" }: MarkdownRendererProps) {
   return (
     <div className={`markdown-content ${className}`}>
       <ReactMarkdown
@@ -51,31 +51,31 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
           
           // 段落樣式
           p: ({ children }) => (
-            <p className="text-gray-800 dark:text-gray-200 mb-3 leading-relaxed break-words">
+            <p className="text-white mb-3 leading-relaxed break-words">
               {children}
             </p>
           ),
           
           // 列表樣式
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-3 text-gray-800 dark:text-gray-200 space-y-1">
+            <ul className="list-disc list-inside mb-3 text-white space-y-1">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-3 text-gray-800 dark:text-gray-200 space-y-1">
+            <ol className="list-decimal list-inside mb-3 text-white space-y-1">
               {children}
             </ol>
           ),
           li: ({ children }) => (
-            <li className="text-gray-800 dark:text-gray-200">
+            <li className="text-white">
               {children}
             </li>
           ),
           
           // 引用樣式
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-3 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 italic">
+            <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-3 bg-gray-800/50 text-gray-300 italic rounded-r-lg">
               {children}
             </blockquote>
           ),
@@ -85,7 +85,7 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
             const isInline = !className;
             if (isInline) {
               return (
-                <code className="bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono">
+                <code className="bg-gray-800 text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono">
                   {children}
                 </code>
               );
@@ -108,7 +108,7 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+              className="text-blue-400 hover:text-blue-300 underline"
             >
               {children}
             </a>
@@ -164,19 +164,19 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
           
           // 強調樣式
           strong: ({ children }) => (
-            <strong className="font-bold text-gray-900 dark:text-white">
+            <strong className="font-bold text-white">
               {children}
             </strong>
           ),
           em: ({ children }) => (
-            <em className="italic text-gray-800 dark:text-gray-200">
+            <em className="italic text-gray-200">
               {children}
             </em>
           ),
           
           // 刪除線
           del: ({ children }) => (
-            <del className="line-through text-gray-500 dark:text-gray-400">
+            <del className="line-through text-gray-400">
               {children}
             </del>
           ),

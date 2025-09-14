@@ -40,55 +40,79 @@ export default function PostCard({
   const likedMain = likedPosts.includes(post.id);
 
   return (
-    <div className="mb-12 cursor-pointer" onClick={() => onOpenModal(post.id)}>
-      <div className="flex gap-8">
-        <div
-          className="bg-center bg-no-repeat aspect-square bg-cover w-12 h-12 rounded-full object-cover"
-          style={{
-            backgroundImage: `url("${
-              post.author?.image || "/Avatar/sloth.svg"
-            }")`,
-          }}
-        />
+    <div className="mb-8 cursor-pointer group" onClick={() => onOpenModal(post.id)}>
+      <div className="flex gap-6 p-6 bg-gray-900/30 rounded-2xl border border-gray-800 hover:bg-gray-900/50 hover:border-gray-700 transition-all duration-200 hover:shadow-xl hover:shadow-gray-900/20">
+        <div className="relative">
+          <div
+            className="bg-center bg-no-repeat aspect-square bg-cover w-14 h-14 rounded-full object-cover ring-2 ring-gray-700 group-hover:ring-blue-500 transition-all duration-200"
+            style={{
+              backgroundImage: `url("${
+                post.author?.image || "/Avatar/sloth.svg"
+              }")`,
+            }}
+          />
+          {isRepost && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+              <img src="/icons/repost.svg" alt="repost" className="w-3 h-3 filter brightness-0 invert" />
+            </div>
+          )}
+        </div>
         <div className="flex flex-col gap-2 w-full">
           {post.repostOf && (
-            <p className="flex flex-row gap-1 text-xs text-[#90abcb]">
-              {post.author?.name ?? "Someone"} reposted
-              <img src="/icons/repost.svg" alt="repost" className="w-3 h-3" />
-            </p>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-1 px-2 py-1 bg-blue-600/20 rounded-full">
+                <img src="/icons/repost.svg" alt="repost" className="w-3 h-3" />
+                <span className="text-xs text-blue-400 font-medium">
+                  {post.author?.name ?? "Someone"} reposted
+                </span>
+              </div>
+            </div>
           )}
 
           <div
             className={
               isRepost
-                ? "border-l-2 border-gray-500 p-3 ml-1 rounded-md bg-gray-800"
+                ? "border-l-4 border-blue-500/50 pl-4 py-2 rounded-r-lg bg-gray-800/50"
                 : ""
             }
           >
             {!post.repostOf && (
-              <div>
-                <p className="font-medium text-white">{post.title}</p>
-                <p className="mt-2 text-[#90abcb] text-xs">
-                  {post.author?.name ?? "Unknown"}
-                </p>
-                <div className="mt-2 text-sm w-full text-white">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors">
+                    {post.title}
+                  </h3>
+                  <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                  <span className="text-sm text-[#90abcb] font-medium">
+                    {post.author?.name ?? "Unknown"}
+                  </span>
+                </div>
+                <div className="text-sm w-full text-gray-200 leading-relaxed">
                   <MarkdownRenderer content={post.content} />
                 </div>
               </div>
             )}
 
             {post.repostOf && (
-              <div>
-                <p className="font-medium text-white">{post.repostOf.title}</p>
-                <p className="mt-2 text-[#90abcb] text-sm">
-                  {post.repostOf.author?.name ?? "Unknown"}
-                </p>
-                <div className="mt-2 text-sm w-full text-white">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors">
+                    {post.repostOf.title}
+                  </h3>
+                  <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                  <span className="text-sm text-[#90abcb] font-medium">
+                    {post.repostOf.author?.name ?? "Unknown"}
+                  </span>
+                </div>
+                <div className="text-sm w-full text-gray-200 leading-relaxed">
                   <MarkdownRenderer content={post.repostOf.content} />
                 </div>
-                <p className="text-[#90abcb] text-xs mt-1">
-                  {new Date(post.repostOf.createdAt as string).toLocaleString()}
-                </p>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{new Date(post.repostOf.createdAt as string).toLocaleString()}</span>
+                </div>
 
                 <PostActions
                   targetId={post.repostOf.id}

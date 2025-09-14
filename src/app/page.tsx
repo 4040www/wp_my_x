@@ -205,6 +205,8 @@ export default function Home() {
     const isLiked = likedPosts.includes(postId);
     const currentCount = likeCounts[postId] || 0;
     
+    console.log("Like clicked:", { postId, isLiked, currentCount });
+    
     // 保存原始狀態用於回滾
     const originalLikedPosts = [...likedPosts];
     const originalLikeCount = likeCounts[postId] || 0;
@@ -214,6 +216,7 @@ export default function Home() {
       : [...likedPosts, postId];
 
     // 樂觀更新 UI - 點讚狀態和數字
+    console.log("Updating UI optimistically:", { newLikedPosts, newCount: isLiked ? currentCount - 1 : currentCount + 1 });
     setLikedPosts(newLikedPosts);
     setLikeCounts((prev) => ({
       ...prev,
@@ -356,18 +359,21 @@ export default function Home() {
           searchQuery={searchQuery}
           onNotificationClick={openPostModal}
         />
-        <main className="flex flex-col items-center px-10 py-5 max-w-screen overflow-y-scroll scrollbar-none">
-        <div className="h-[calc(100vh-120px)] w-3xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">
-               {hasSearched
-                 ? `Search Results${searchQuery ? ` for &ldquo;${searchQuery}&rdquo;` : ""}`
-                 : "Home"}
-            </h2>
+        <main className="flex flex-col items-center px-4 py-6 max-w-4xl mx-auto overflow-y-scroll scrollbar-none">
+        <div className="w-full max-w-2xl space-y-6">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+              <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                 {hasSearched
+                   ? `Search Results${searchQuery ? ` for ${searchQuery}` : ""}`
+                   : "Home"}
+              </h2>
+            </div>
             {hasSearched && (
               <button
                 onClick={clearSearch}
-                className="text-[#90abcb] hover:text-white transition-colors text-sm"
+                className="px-4 py-2 text-[#90abcb] hover:text-white hover:bg-gray-800 rounded-lg transition-all duration-200 text-sm font-medium"
               >
                 Clear Search
               </button>
@@ -375,14 +381,31 @@ export default function Home() {
           </div>
 
           {isLoading && (
-            <div className="text-center py-8 text-white">
-              {hasSearched ? "Searching..." : "Loading..."}
+            <div className="text-center py-12">
+              <div className="inline-flex items-center gap-3 text-white">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
+                <span className="text-lg font-medium">
+                  {hasSearched ? "Searching..." : "Loading..."}
+                </span>
+              </div>
             </div>
           )}
 
           {!isLoading && displayData.length === 0 && hasSearched && (
-            <div className="text-center py-8 text-white">
-              No results found for &ldquo;{searchQuery}&rdquo;
+            <div className="text-center py-12">
+              <div className="inline-flex flex-col items-center gap-4 p-8 bg-gray-900/50 rounded-2xl border border-gray-800">
+                <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-2">No results found</h3>
+                  <p className="text-gray-400">
+                    No results found for &ldquo;{searchQuery}&rdquo;
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -411,28 +434,41 @@ export default function Home() {
 
           {/* 載入更多按鈕 */}
           {!hasSearched && hasMore && (
-            <div className="flex justify-center mt-6">
+            <div className="flex justify-center mt-8">
               <button
                 onClick={loadMore}
                 disabled={isValidating}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
               >
-                {isValidating ? "載入中..." : "載入更多"}
+                {isValidating ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    載入中...
+                  </div>
+                ) : (
+                  "載入更多"
+                )}
               </button>
             </div>
           )}
 
           {/* 載入中指示器 */}
           {!hasSearched && isValidating && feed.length > 0 && (
-            <div className="flex justify-center mt-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <div className="flex justify-center mt-6">
+              <div className="flex items-center gap-3 px-6 py-3 bg-gray-900/50 rounded-full border border-gray-800">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
+                <span className="text-gray-400 text-sm font-medium">載入更多貼文...</span>
+              </div>
             </div>
           )}
 
           {/* 沒有更多數據提示 */}
           {!hasSearched && !hasMore && feed.length > 0 && (
-            <div className="text-center py-8 text-white">
-              已載入所有貼文
+            <div className="text-center py-8">
+              <div className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900/30 rounded-full border border-gray-800">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-400 text-sm font-medium">已載入所有貼文</span>
+              </div>
             </div>
           )}
 
@@ -459,9 +495,12 @@ export default function Home() {
 
       <Link
         href="/posts/new"
-        className="fixed bottom-6 right-6 bg-white hover:bg-blue-700 text-black px-5 py-3 rounded-full shadow-lg font-semibold transition"
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-4 rounded-2xl shadow-2xl font-semibold transition-all duration-200 transform hover:scale-105 hover:shadow-blue-500/25 flex items-center gap-2"
       >
-        + New Post
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        New Post
       </Link>
       </div>
     </AuthGuard>
