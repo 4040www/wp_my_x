@@ -196,11 +196,11 @@
 }
 
 .markdown-content code {
-  @apply bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono;
+  @apply bg-gray-800 dark:bg-gray-700 text-pink-400 dark:text-pink-300 px-1.5 py-0.5 rounded text-sm font-mono border border-gray-700 dark:border-gray-600;
 }
 
 .markdown-content pre {
-  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3 text-sm;
+  @apply bg-gray-900 dark:bg-gray-800 text-gray-100 dark:text-gray-200 p-4 rounded-lg overflow-x-auto mb-3 text-sm border border-gray-700 dark:border-gray-600;
 }
 
 .markdown-content pre code {
@@ -244,11 +244,11 @@
 }
 
 .markdown-content strong {
-  @apply font-bold text-gray-900 dark:text-white;
+  @apply font-bold text-yellow-400 dark:text-yellow-300;
 }
 
 .markdown-content em {
-  @apply italic text-gray-800 dark:text-gray-200;
+  @apply italic text-yellow-300 dark:text-yellow-200;
 }
 
 .markdown-content del {

@@ -159,7 +159,7 @@ export default function PostModal({
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -193,7 +193,7 @@ export default function PostModal({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 flex-1 overflow-y-auto">
           {/* Repost indicator */}
           {isRepost && modalPost.repostOf && (
             <div className="flex items-center space-x-2 mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -272,19 +272,19 @@ export default function PostModal({
         </div>
 
         {/* Comments section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 flex-1 flex flex-col min-h-0">
+        <div className="border-t border-gray-200 dark:border-gray-700 flex-1 flex flex-col min-h-0 max-h-96">
           <div className="px-6 py-4 flex-1 flex flex-col min-h-0">
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex-shrink-0">
               Comments ({commentCounts[modalPost.id] ?? modalPost.comments.length})
             </h4>
             
             {/* Comments list */}
-            <div className="space-y-4 mb-6 flex-1 overflow-y-auto">
+            <div className="space-y-4 mb-6 flex-1 overflow-y-auto min-h-0">
               <CommentsList comments={modalPost.comments} />
             </div>
 
             {/* Comment input */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 mt-4">
               <CommentInput
                 postId={modalPost.id}
                 value={commentValue(modalPost.id)}

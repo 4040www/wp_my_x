@@ -80,12 +80,12 @@ export default function 目前載入({ content, className = "" }: MarkdownRender
             </blockquote>
           ),
           
-          // 代碼樣式
+          // 代碼樣式 - 確保在深色背景下可見
           code: ({ children, className }) => {
             const isInline = !className;
             if (isInline) {
               return (
-                <code className="bg-gray-800 text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono">
+                <code className="bg-gray-800 dark:bg-gray-700 text-pink-400 dark:text-pink-300 px-1.5 py-0.5 rounded text-sm font-mono border border-gray-700 dark:border-gray-600">
                   {children}
                 </code>
               );
@@ -97,7 +97,7 @@ export default function 目前載入({ content, className = "" }: MarkdownRender
             );
           },
           pre: ({ children }) => (
-            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3 text-sm">
+            <pre className="bg-gray-900 dark:bg-gray-800 text-gray-100 dark:text-gray-200 p-4 rounded-lg overflow-x-auto mb-3 text-sm border border-gray-700 dark:border-gray-600">
               {children}
             </pre>
           ),
@@ -162,14 +162,14 @@ export default function 目前載入({ content, className = "" }: MarkdownRender
             <hr className="border-gray-300 dark:border-gray-600 my-4" />
           ),
           
-          // 強調樣式
+          // 強調樣式 - 確保在深色背景下可見
           strong: ({ children }) => (
-            <strong className="font-bold text-yellow-400">
+            <strong className="font-bold text-yellow-400 dark:text-yellow-300">
               {children}
             </strong>
           ),
           em: ({ children }) => (
-            <em className="italic text-yellow-300">
+            <em className="italic text-yellow-300 dark:text-yellow-200">
               {children}
             </em>
           ),
