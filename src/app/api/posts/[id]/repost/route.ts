@@ -106,6 +106,7 @@ export async function POST(
         name: repost.author.name,
         image: repost.author.image,
       },
+      repost: repost, // 返回完整的轉發貼文信息
     });
   } catch (err) {
     console.error("Repost error:", err);

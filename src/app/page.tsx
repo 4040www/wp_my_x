@@ -132,7 +132,7 @@ export default function Home() {
     liked?: boolean; 
     userId: string 
   }) => {
-    const { postId, likeCount, commentCount, liked, userId } =
+    const { postId, likeCount, commentCount, repostCount, liked, userId } =
       data;
 
     // 如果是当前用户的操作，跳过（避免重复更新）
@@ -148,6 +148,12 @@ export default function Home() {
     setCommentCounts((prev) => ({
       ...prev,
       [postId]: commentCount,
+    }));
+
+    // 更新转發数
+    setRepostCounts((prev) => ({
+      ...prev,
+      [postId]: repostCount,
     }));
 
     // 如果有新的点赞状态，更新点赞列表
@@ -288,6 +294,12 @@ export default function Home() {
       
       const result = await response.json();
       console.log("Repost successful:", result);
+      
+      // 轉發成功後重新獲取貼文列表
+      // 使用 setTimeout 確保 refetch 在狀態更新後執行
+      setTimeout(() => {
+        refetch();
+      }, 100);
     } catch (error) {
       // 如果失敗，回滾轉發狀態和計數
       setRepostedPosts(originalRepostedPosts);

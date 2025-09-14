@@ -192,99 +192,100 @@ export default function PostModal({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 flex-1 overflow-y-auto">
-          {/* Repost indicator */}
-          {isRepost && modalPost.repostOf && (
-            <div className="flex items-center space-x-2 mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm text-blue-600 dark:text-blue-400">
-                Reposted from {modalPost.repostOf.author?.name}
-              </span>
-            </div>
-          )}
-
-          {/* Post title */}
-          {basePost.title && (
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              {basePost.title}
-            </h3>
-          )}
-
+        {/* Content and Comments - 統一滾動區域 */}
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Post content */}
-          <div className="prose dark:prose-invert max-w-none">
-            <ModalMarkdownRenderer content={basePost.content} />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              {/* Like button */}
-              <button
-                onClick={() => onLike(modalPost.id)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200 ${
-                  isLiked 
-                    ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400' 
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
-                }`}
-              >
-                <svg className="w-5 h-5" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <div className="p-6">
+            {/* Repost indicator */}
+            {isRepost && modalPost.repostOf && (
+              <div className="flex items-center space-x-2 mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
                 </svg>
-                <span className="text-sm font-medium">
-                  {likeCounts[modalPost.id] ?? modalPost.likeCount}
-                </span>
-              </button>
-
-              {/* Comment button - 只是顯示，實際功能在下方輸入框 */}
-              <div className="flex items-center space-x-2 px-3 py-2 rounded-full text-gray-600 dark:text-gray-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <span className="text-sm font-medium">
-                  {commentCounts[modalPost.id] ?? modalPost.comments.length}
+                <span className="text-sm text-blue-600 dark:text-blue-400">
+                  Reposted from {modalPost.repostOf.author?.name}
                 </span>
               </div>
+            )}
 
-              {/* Repost button */}
-              {onRepost && !isRepost && (
+            {/* Post title */}
+            {basePost.title && (
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                {basePost.title}
+              </h3>
+            )}
+
+            {/* Post content */}
+            <div className="prose dark:prose-invert max-w-none">
+              <ModalMarkdownRenderer content={basePost.content} />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                {/* Like button */}
                 <button
-                  onClick={() => onRepost(modalPost.id)}
-                  disabled={isReposted}
+                  onClick={() => onLike(modalPost.id)}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200 ${
-                    isReposted
-                      ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 cursor-not-allowed'
+                    isLiked 
+                      ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400' 
                       : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                  <svg className="w-5 h-5" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
-                  <span className="text-sm font-medium">{modalPost.repostCount || 0}</span>
+                  <span className="text-sm font-medium">
+                    {likeCounts[modalPost.id] ?? modalPost.likeCount}
+                  </span>
                 </button>
-              )}
+
+                {/* Comment button - 只是顯示，實際功能在下方輸入框 */}
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-full text-gray-600 dark:text-gray-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <span className="text-sm font-medium">
+                    {commentCounts[modalPost.id] ?? modalPost.comments.length}
+                  </span>
+                </div>
+
+                {/* Repost button */}
+                {onRepost && !isRepost && (
+                  <button
+                    onClick={() => onRepost(modalPost.id)}
+                    disabled={isReposted}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200 ${
+                      isReposted
+                        ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 cursor-not-allowed'
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm font-medium">{modalPost.repostCount || 0}</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Comments section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 flex-1 flex flex-col min-h-0 max-h-96">
-          <div className="px-6 py-4 flex-1 flex flex-col min-h-0">
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex-shrink-0">
+          {/* Comments section */}
+          <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Comments ({commentCounts[modalPost.id] ?? modalPost.comments.length})
             </h4>
             
             {/* Comments list */}
-            <div className="space-y-4 mb-6 flex-1 overflow-y-auto min-h-0">
+            <div className="space-y-4 mb-6">
               <CommentsList comments={modalPost.comments} />
             </div>
 
             {/* Comment input */}
-            <div className="flex-shrink-0 mt-4">
+            <div className="mt-4">
               <CommentInput
                 postId={modalPost.id}
                 value={commentValue(modalPost.id)}

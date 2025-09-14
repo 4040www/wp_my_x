@@ -171,12 +171,12 @@
 }
 
 .markdown-content p {
-  @apply mb-3 leading-relaxed;
+  @apply mb-3 leading-relaxed text-white dark:text-gray-200;
 }
 
 .markdown-content ul,
 .markdown-content ol {
-  @apply mb-3 space-y-1;
+  @apply mb-3 space-y-1 text-white dark:text-gray-200;
 }
 
 .markdown-content ul {
@@ -188,7 +188,7 @@
 }
 
 .markdown-content li {
-  @apply text-gray-800 dark:text-gray-200;
+  @apply text-white dark:text-gray-200;
 }
 
 .markdown-content blockquote {
