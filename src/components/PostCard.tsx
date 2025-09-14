@@ -17,7 +17,6 @@ export default function PostCard({
   repostDisabledForId,
   commentValue,
   setCommentValue,
-  commentLoading,
   onSubmitComment,
 }: {
   item: FeedItem;
@@ -32,7 +31,6 @@ export default function PostCard({
   repostDisabledForId: (postId: string) => boolean;
   commentValue: (postId: string) => string;
   setCommentValue: (postId: string, v: string) => void;
-  commentLoading: (postId: string) => boolean;
   onSubmitComment: (postId: string) => void;
 }) {
   const post = item.post;

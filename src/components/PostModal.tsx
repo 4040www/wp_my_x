@@ -115,8 +115,8 @@ export default function PostModal({
   repostedPosts,
   commentValue,
   setCommentValue,
-  commentLoading,
   onSubmitComment,
+  optimisticComments = [],
 }: {
   modalPost: Post;
   likedPosts: string[];
@@ -128,8 +128,8 @@ export default function PostModal({
   repostedPosts?: string[];
   commentValue: (postId: string) => string;
   setCommentValue: (postId: string, v: string) => void;
-  commentLoading: (postId: string) => boolean;
   onSubmitComment: (postId: string) => void;
+  optimisticComments?: any[];
 }) {
   const isRepost = !!modalPost.repostOf;
   const basePost = modalPost.repostOf ?? modalPost;
@@ -281,7 +281,9 @@ export default function PostModal({
             
             {/* Comments list */}
             <div className="space-y-4 mb-6">
-              <CommentsList comments={modalPost.comments} />
+              <CommentsList 
+                comments={[...(modalPost.comments || []), ...optimisticComments]} 
+              />
             </div>
 
             {/* Comment input */}
@@ -294,7 +296,7 @@ export default function PostModal({
                   onSubmitComment(modalPost.id);
                   // 留言後不自動滾動，保持當前位置
                 }}
-                disabled={commentLoading(modalPost.id)}
+                disabled={false}
                 autoFocus={false}
                 showSubmitButton={true}
               />

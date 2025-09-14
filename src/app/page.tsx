@@ -31,14 +31,12 @@ export default function Home() {
   const [commentValues, setCommentValues] = useState<Record<string, string>>(
     {},
   );
-  const [commentLoading, setCommentLoading] = useState<Record<string, boolean>>(
-    {},
-  );
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>(
     {},
   );
   const [repostedPosts, setRepostedPosts] = useState<string[]>([]);
   const [repostCounts, setRepostCounts] = useState<Record<string, number>>({});
+  const [optimisticComments, setOptimisticComments] = useState<Record<string, any[]>>({});
 
   const {
     searchQuery,
@@ -232,11 +230,27 @@ export default function Home() {
     
     // 保存原始狀態用於回滾
     const originalCommentCount = currentCount;
+    const originalOptimisticComments = optimisticComments[postId] || [];
 
-    // 樂觀更新 - 立即增加評論數
+    // 創建樂觀更新的留言對象
+    const optimisticComment = {
+      id: `temp-${Date.now()}`, // 臨時 ID
+      content,
+      createdAt: new Date().toISOString(),
+      author: {
+        id: session?.user?.id || "",
+        name: session?.user?.name || "You",
+        image: session?.user?.image || "/Avatar/sloth.svg",
+      },
+    };
+
+    // 樂觀更新 - 立即增加評論數並添加留言
     setCommentCounts((prev) => ({ ...prev, [postId]: currentCount + 1 }));
-    setCommentLoading((prev) => ({ ...prev, [postId]: true }));
-
+    setOptimisticComments((prev) => ({
+      ...prev,
+      [postId]: [...(prev[postId] || []), optimisticComment],
+    }));
+    
     // 清空評論輸入
     setCommentValues((prev) => ({ ...prev, [postId]: "" }));
 
@@ -257,19 +271,26 @@ export default function Home() {
       const result = await response.json();
       console.log("Comment successful:", result);
       
-      // 留言成功後立即重新獲取貼文列表以顯示新留言
-      console.log("Comment successful, refetching posts...");
+      // 留言成功後清除樂觀更新的留言並重新獲取數據
+      setOptimisticComments((prev) => ({
+        ...prev,
+        [postId]: [],
+      }));
+      
+      // 重新獲取貼文列表以顯示真實的留言數據
       setTimeout(() => {
         refetch();
       }, 100);
     } catch (error) {
-      // 如果失敗，回滾評論數
+      // 如果失敗，回滾所有狀態
       setCommentCounts((prev) => ({ ...prev, [postId]: originalCommentCount }));
+      setOptimisticComments((prev) => ({
+        ...prev,
+        [postId]: originalOptimisticComments,
+      }));
       // 恢復評論內容
       setCommentValues((prev) => ({ ...prev, [postId]: content }));
       console.error("Comment failed:", error);
-    } finally {
-      setCommentLoading((prev) => ({ ...prev, [postId]: false }));
     }
   };
 
@@ -411,7 +432,6 @@ export default function Home() {
                   setCommentValue={(id, v) =>
                     setCommentValues((prev) => ({ ...prev, [id]: v }))
                   }
-                  commentLoading={(id) => commentLoading[id] || false}
                   onSubmitComment={handleComment}
                 />
               </div>
@@ -475,8 +495,8 @@ export default function Home() {
           setCommentValue={(id, v) =>
             setCommentValues((prev) => ({ ...prev, [id]: v }))
           }
-          commentLoading={(id) => commentLoading[id] || false}
           onSubmitComment={handleComment}
+          optimisticComments={optimisticComments[modalPost.id] || []}
         />
       )}
 
