@@ -2,6 +2,7 @@
 import React from "react";
 import PostActions from "@/components/PostActions";
 import CommentInput from "@/components/CommentInput";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 export default function PostCard({
   item,
@@ -68,9 +69,9 @@ export default function PostCard({
                 <p className="mt-2 text-[#90abcb] text-xs">
                   {post.author?.name ?? "Unknown"}
                 </p>
-                <p className="mt-2 text-sm max-w-2xl break-words whitespace-pre-wrap">
-                  {post.content}
-                </p>
+                <div className="mt-2 text-sm max-w-2xl">
+                  <MarkdownRenderer content={post.content} />
+                </div>
               </div>
             )}
 
@@ -80,9 +81,9 @@ export default function PostCard({
                 <p className="mt-2 text-[#90abcb] text-sm">
                   {post.repostOf.author?.name ?? "Unknown"}
                 </p>
-                <p className="mt-2 text-sm max-w-2xl break-words whitespace-pre-wrap">
-                  {post.repostOf.content}
-                </p>
+                <div className="mt-2 text-sm max-w-2xl">
+                  <MarkdownRenderer content={post.repostOf.content} />
+                </div>
                 <p className="text-[#90abcb] text-xs mt-1">
                   {new Date(post.repostOf.createdAt as string).toLocaleString()}
                 </p>
@@ -120,17 +121,6 @@ export default function PostCard({
             showRepost={!post.repostOf}
             repostDisabled={repostDisabledForId(post.id)}
           />
-
-          <div className="mt-2">
-            <CommentInput
-              postId={post.id}
-              value={commentValue(post.id)}
-              onChange={(v) => setCommentValue(post.id, v)}
-              onSubmit={() => onSubmitComment(post.id)}
-              disabled={commentLoading(post.id)}
-              onFocus={() => onOpenComments(post.id)}
-            />
-          </div>
         </div>
       </div>
     </div>

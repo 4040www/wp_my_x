@@ -215,9 +215,14 @@ export default function Home() {
     }));
 
     try {
-      await fetch(`/api/posts/${postId}/like`, { method: "POST" });
-      // 重新獲取數據以同步服務器狀態
-      refetch();
+      const response = await fetch(`/api/posts/${postId}/like`, { method: "POST" });
+      
+      if (!response.ok) {
+        throw new Error("Like request failed");
+      }
+      
+      // 不調用 refetch，保持樂觀更新狀態
+      console.log("Like successful");
     } catch (error) {
       // 如果失敗，回滾 UI 狀態
       setLikedPosts(likedPosts);
@@ -244,14 +249,18 @@ export default function Home() {
     setCommentValues((prev) => ({ ...prev, [postId]: "" }));
 
     try {
-      await fetch(`/api/posts/${postId}/comment`, {
+      const response = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),
       });
-
-      // 重新獲取數據以同步服務器狀態
-      refetch();
+      
+      if (!response.ok) {
+        throw new Error("Comment request failed");
+      }
+      
+      // 不調用 refetch，保持樂觀更新狀態
+      console.log("Comment successful");
     } catch (error) {
       // 如果失敗，回滾評論數
       setCommentCounts((prev) => ({ ...prev, [postId]: currentCount }));
@@ -265,11 +274,21 @@ export default function Home() {
   const handleRepost = async (postId: string) => {
     if (repostedPosts.includes(postId)) return;
 
+    // 樂觀更新 - 立即添加轉發狀態
+    setRepostedPosts((prev) => [...prev, postId]);
+
     try {
-      await fetch(`/api/posts/${postId}/repost`, { method: "POST" });
-      setRepostedPosts((prev) => [...prev, postId]);
-      refetch();
+      const response = await fetch(`/api/posts/${postId}/repost`, { method: "POST" });
+      
+      if (!response.ok) {
+        throw new Error("Repost request failed");
+      }
+      
+      // 不調用 refetch，保持樂觀更新狀態
+      console.log("Repost successful");
     } catch (error) {
+      // 如果失敗，回滾轉發狀態
+      setRepostedPosts((prev) => prev.filter(id => id !== postId));
       console.error("Repost failed:", error);
     }
   };
@@ -375,6 +394,7 @@ export default function Home() {
               已載入所有貼文
             </div>
           )}
+
         </div>
       </main>
 
