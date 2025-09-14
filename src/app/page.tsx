@@ -38,6 +38,7 @@ export default function Home() {
     {},
   );
   const [repostedPosts, setRepostedPosts] = useState<string[]>([]);
+  const [repostCounts, setRepostCounts] = useState<Record<string, number>>({});
 
   const {
     searchQuery,
@@ -203,6 +204,11 @@ export default function Home() {
   const handleLike = async (postId: string) => {
     const isLiked = likedPosts.includes(postId);
     const currentCount = likeCounts[postId] || 0;
+    
+    // 保存原始狀態用於回滾
+    const originalLikedPosts = [...likedPosts];
+    const originalLikeCount = likeCounts[postId] || 0;
+    
     const newLikedPosts = isLiked
       ? likedPosts.filter((id) => id !== postId)
       : [...likedPosts, postId];
@@ -215,20 +221,28 @@ export default function Home() {
     }));
 
     try {
-      const response = await fetch(`/api/posts/${postId}/like`, { method: "POST" });
+      const response = await fetch(`/api/posts/${postId}/like`, { 
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
       
       if (!response.ok) {
-        throw new Error("Like request failed");
+        const errorText = await response.text();
+        console.error("Like API error:", response.status, errorText);
+        throw new Error(`Like request failed: ${response.status} ${errorText}`);
       }
       
-      // 不調用 refetch，保持樂觀更新狀態
-      console.log("Like successful");
+      const result = await response.json();
+      console.log("Like successful:", result);
     } catch (error) {
       // 如果失敗，回滾 UI 狀態
-      setLikedPosts(likedPosts);
+      setLikedPosts(originalLikedPosts);
       setLikeCounts((prev) => ({
         ...prev,
-        [postId]: currentCount,
+        [postId]: originalLikeCount,
       }));
       console.error("Like failed:", error);
     }
@@ -240,6 +254,9 @@ export default function Home() {
     if (!content?.trim()) return;
 
     const currentCount = commentCounts[postId] || 0;
+    
+    // 保存原始狀態用於回滾
+    const originalCommentCount = currentCount;
 
     // 樂觀更新 - 立即增加評論數
     setCommentCounts((prev) => ({ ...prev, [postId]: currentCount + 1 }));
@@ -251,19 +268,24 @@ export default function Home() {
     try {
       const response = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),
       });
       
       if (!response.ok) {
-        throw new Error("Comment request failed");
+        const errorText = await response.text();
+        console.error("Comment API error:", response.status, errorText);
+        throw new Error(`Comment request failed: ${response.status} ${errorText}`);
       }
       
-      // 不調用 refetch，保持樂觀更新狀態
-      console.log("Comment successful");
+      const result = await response.json();
+      console.log("Comment successful:", result);
     } catch (error) {
       // 如果失敗，回滾評論數
-      setCommentCounts((prev) => ({ ...prev, [postId]: currentCount }));
+      setCommentCounts((prev) => ({ ...prev, [postId]: originalCommentCount }));
+      // 恢復評論內容
+      setCommentValues((prev) => ({ ...prev, [postId]: content }));
       console.error("Comment failed:", error);
     } finally {
       setCommentLoading((prev) => ({ ...prev, [postId]: false }));
@@ -274,21 +296,39 @@ export default function Home() {
   const handleRepost = async (postId: string) => {
     if (repostedPosts.includes(postId)) return;
 
-    // 樂觀更新 - 立即添加轉發狀態
+    // 保存原始狀態用於回滾
+    const originalRepostedPosts = [...repostedPosts];
+    const currentRepostCount = repostCounts[postId] || 0;
+
+    // 樂觀更新 - 立即添加轉發狀態和計數
     setRepostedPosts((prev) => [...prev, postId]);
+    setRepostCounts((prev) => ({
+      ...prev,
+      [postId]: currentRepostCount + 1,
+    }));
 
     try {
-      const response = await fetch(`/api/posts/${postId}/repost`, { method: "POST" });
+      const response = await fetch(`/api/posts/${postId}/repost`, { 
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+      });
       
       if (!response.ok) {
-        throw new Error("Repost request failed");
+        const errorText = await response.text();
+        console.error("Repost API error:", response.status, errorText);
+        throw new Error(`Repost request failed: ${response.status} ${errorText}`);
       }
       
-      // 不調用 refetch，保持樂觀更新狀態
-      console.log("Repost successful");
+      const result = await response.json();
+      console.log("Repost successful:", result);
     } catch (error) {
-      // 如果失敗，回滾轉發狀態
-      setRepostedPosts((prev) => prev.filter(id => id !== postId));
+      // 如果失敗，回滾轉發狀態和計數
+      setRepostedPosts(originalRepostedPosts);
+      setRepostCounts((prev) => ({
+        ...prev,
+        [postId]: currentRepostCount,
+      }));
       console.error("Repost failed:", error);
     }
   };
@@ -319,9 +359,9 @@ export default function Home() {
         <main className="flex flex-col items-center px-10 py-5 max-w-screen overflow-y-scroll scrollbar-none">
         <div className="h-[calc(100vh-120px)] w-3xl">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold text-white">
                {hasSearched
-                 ? `Search Results${searchQuery ? ` for &ldquo;${searchQuery}&rdquo;` : ""}`
+                 ? `Search Results${searchQuery ? ` for "${searchQuery}"` : ""}`
                  : "Home"}
             </h2>
             {hasSearched && (
@@ -335,14 +375,14 @@ export default function Home() {
           </div>
 
           {isLoading && (
-            <div className="text-center py-8 text-[#90abcb]">
+            <div className="text-center py-8 text-white">
               {hasSearched ? "Searching..." : "Loading..."}
             </div>
           )}
 
           {!isLoading && displayData.length === 0 && hasSearched && (
-            <div className="text-center py-8 text-[#90abcb]">
-              No results found for &ldquo;{searchQuery}&rdquo;
+            <div className="text-center py-8 text-white">
+              No results found for "{searchQuery}"
             </div>
           )}
 
@@ -353,6 +393,7 @@ export default function Home() {
                 likedPosts={likedPosts}
                 likeCounts={likeCounts}
                 commentCounts={commentCounts}
+                repostCounts={repostCounts}
                 onOpenModal={openPostModal}
                 onLike={handleLike}
                 onRepost={handleRepost}
@@ -390,7 +431,7 @@ export default function Home() {
 
           {/* 沒有更多數據提示 */}
           {!hasSearched && !hasMore && feed.length > 0 && (
-            <div className="text-center py-8 text-[#90abcb]">
+            <div className="text-center py-8 text-white">
               已載入所有貼文
             </div>
           )}

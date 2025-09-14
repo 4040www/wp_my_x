@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { createNotification } from "@/lib/notifications";
 import { pusherServer, getPostChannel } from "@/lib/pusher";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
@@ -72,7 +70,16 @@ export async function POST(
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {
-    console.error(err);
-    return new Response("Error", { status: 500 });
+    console.error("Like API error:", err);
+    return new Response(
+      JSON.stringify({ 
+        error: "Internal server error", 
+        message: err instanceof Error ? err.message : "Unknown error" 
+      }), 
+      { 
+        status: 500, 
+        headers: { "Content-Type": "application/json" } 
+      }
+    );
   }
 }

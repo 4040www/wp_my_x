@@ -9,6 +9,7 @@ export default function PostCard({
   likedPosts,
   likeCounts,
   commentCounts,
+  repostCounts,
   onOpenModal,
   onLike,
   onRepost,
@@ -23,6 +24,7 @@ export default function PostCard({
   likedPosts: string[];
   likeCounts: Record<string, number>;
   commentCounts: Record<string, number>;
+  repostCounts: Record<string, number>;
   onOpenModal: (postId: string) => void;
   onLike: (postId: string) => void;
   onRepost: (postId: string) => void;
@@ -65,11 +67,11 @@ export default function PostCard({
           >
             {!post.repostOf && (
               <div>
-                <p className="font-medium">{post.title}</p>
+                <p className="font-medium text-white">{post.title}</p>
                 <p className="mt-2 text-[#90abcb] text-xs">
                   {post.author?.name ?? "Unknown"}
                 </p>
-                <div className="mt-2 text-sm max-w-2xl">
+                <div className="mt-2 text-sm w-full text-white">
                   <MarkdownRenderer content={post.content} />
                 </div>
               </div>
@@ -77,11 +79,11 @@ export default function PostCard({
 
             {post.repostOf && (
               <div>
-                <p className="font-medium">{post.repostOf.title}</p>
+                <p className="font-medium text-white">{post.repostOf.title}</p>
                 <p className="mt-2 text-[#90abcb] text-sm">
                   {post.repostOf.author?.name ?? "Unknown"}
                 </p>
-                <div className="mt-2 text-sm max-w-2xl">
+                <div className="mt-2 text-sm w-full text-white">
                   <MarkdownRenderer content={post.repostOf.content} />
                 </div>
                 <p className="text-[#90abcb] text-xs mt-1">
@@ -97,7 +99,11 @@ export default function PostCard({
                     commentCounts[post.repostOf.id] ??
                     post.repostOf.comments.length
                   }
-                  repostCount={post.repostOf?.repostCount ?? post.repostCount}
+                  repostCount={
+                    repostCounts[post.repostOf.id] ?? 
+                    post.repostOf?.repostCount ?? 
+                    post.repostCount
+                  }
                   liked={likedPosts.includes(post.repostOf.id)}
                   onLike={onLike}
                   onOpenComments={onOpenModal}
@@ -113,7 +119,11 @@ export default function PostCard({
             targetId={post.id}
             likeCount={likeCounts[post.id] ?? post.likeCount}
             commentsCount={commentCounts[post.id] ?? post.comments.length}
-            repostCount={post.repostOf?.repostCount ?? post.repostCount}
+            repostCount={
+              repostCounts[post.id] ?? 
+              post.repostOf?.repostCount ?? 
+              post.repostCount
+            }
             liked={likedMain}
             onLike={onLike}
             onOpenComments={onOpenModal}

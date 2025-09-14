@@ -51,7 +51,7 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
           
           // 段落樣式
           p: ({ children }) => (
-            <p className="text-gray-800 dark:text-gray-200 mb-3 leading-relaxed">
+            <p className="text-gray-800 dark:text-gray-200 mb-3 leading-relaxed break-words">
               {children}
             </p>
           ),

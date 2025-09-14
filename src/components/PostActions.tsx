@@ -28,28 +28,28 @@ export default function PostActions({
     <div className="flex gap-6 mt-3" onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => onLike(targetId)}
-        className="flex items-center gap-1 hover:text-gray-400"
+        className="flex items-center gap-1 hover:text-gray-400 hover:bg-gray-700 px-2 py-1 rounded transition-colors"
       >
         <img
           src={liked ? "/icons/heart-fill.svg" : "/icons/heart.svg"}
           alt="like"
           className="w-5 h-5"
         />
-        <span className="text-sm">{likeCount ?? 0}</span>
+        <span className="text-sm text-white">{likeCount ?? 0}</span>
       </button>
 
       <button
         onClick={() => onOpenComments(targetId)}
-        className="flex items-center gap-1 hover:text-gray-400"
+        className="flex items-center gap-1 hover:text-gray-400 hover:bg-gray-700 px-2 py-1 rounded transition-colors"
       >
         <img src="/icons/chat.svg" alt="comment" className="w-5 h-5" />
-        <span className="text-sm">{commentsCount ?? 0}</span>
+        <span className="text-sm text-white">{commentsCount ?? 0}</span>
       </button>
 
       {showRepost && onRepost && (
         <button
           onClick={() => onRepost(targetId)}
-          className={`flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+          className={`flex items-center gap-1 hover:text-gray-400 hover:bg-gray-700 px-2 py-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent`}
           disabled={repostDisabled}
           title={repostDisabled ? "Already reposted" : "Repost"}
         >
@@ -62,7 +62,7 @@ export default function PostActions({
                 : ""
             }`}
           />
-          <span className="text-sm">{repostCount ?? 0}</span>
+          <span className="text-sm text-white">{repostCount ?? 0}</span>
         </button>
       )}
     </div>
