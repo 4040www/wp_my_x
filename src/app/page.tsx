@@ -361,7 +361,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white">
                {hasSearched
-                 ? `Search Results${searchQuery ? ` for "${searchQuery}"` : ""}`
+                 ? `Search Results${searchQuery ? ` for &ldquo;${searchQuery}&rdquo;` : ""}`
                  : "Home"}
             </h2>
             {hasSearched && (
@@ -382,7 +382,7 @@ export default function Home() {
 
           {!isLoading && displayData.length === 0 && hasSearched && (
             <div className="text-center py-8 text-white">
-              No results found for "{searchQuery}"
+              No results found for &ldquo;{searchQuery}&rdquo;
             </div>
           )}
 
